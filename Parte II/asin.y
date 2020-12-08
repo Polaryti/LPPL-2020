@@ -1,200 +1,193 @@
+/*****************************************************************************/
+/**  Ejemplo de BISON-I: S E M - 2          2019-2020 <jbenedi@dsic.upv.es> **/
+/*****************************************************************************/
 %{
-	#include <stdio.h>
-	#include "header.h"
-	
+#include <stdio.h>
+#include <string.h>
+#include "header.h"
 %}
 
-%token OPSUMA_ OPRESTA_ OPMULT_ OPDIV_ OPAND_ OPOR_ OPNOT_ OPINCREMENTO_ OPDECREMENTO_
-%token COMPMAYOR_ COMPMENOR_ COMPMAYORIG_ COMPMENORIG_ OPIGUAL_ OPNOTIGUAL_ IGUAL_
-%token FOR_		IF_		ELSE_
-%token INT_     BOOL_
-%token READ_    PRINT_	RETURN_
-%token CTE_     ID_     TRUE_   FALSE_
-%token LLAVE1_  LLAVE2_ PARENTESIS1_ PARENTESIS2_ CORCHETE1_ CORCHETE2_ SEMICOLON_ COMA_
-
+%union{
+	int cent;
+	char *ident;
+}
+%token INT_ MAS_ DMAS_ MENOS_ DMENOS_ POR_ DIV_ IGUAL_ CTE_ ID_
+%token BOOL_ TRUE_ FALSE_ MAY_ MEN_ MAYIG_ MENIG_ DIGUAL_ DIF_ NEG_ AND_ OR_
+%token APAR_ CPAR_ ALLAVE_ CLLAVE_ ACLAU_ CCLAU_ PCOMA_ COMA_
+%token PRINT_ RETURN_ FOR_ IF_ ELSE_ READ_ 
 %%
 
-programa
-    : lista_declaraciones
-    ;
-
-lista_declaraciones
-    : declaracion
-    | lista_declaraciones declaracion
-    ;
-
-declaracion
-    : declaracion_variable
-    | declaracion_funcion
-    ;
-
-declaracion_variable
-    : tipo_simple ID_ SEMICOLON_
-    | tipo_simple ID_ CORCHETE1_ CTE_ CORCHETE2_ SEMICOLON_
-    ;
-
-tipo_simple
-    : INT_
-    | BOOL_
-    ;
-	
-declaracion_funcion
-	: cabecera_funcion bloque
+programa 
+	: listaDeclaraciones
+        ;
+listaDeclaraciones    
+	: declaracion
+	|listaDeclaraciones declaracion
+        ;
+declaracion   
+	: declaracionVariable
+	| declaracionFuncion
+        ;
+declaracionVariable    
+	: tipoSimple ID_ PCOMA_ 
+        | tipoSimple ID_ ACLAU_ CTE_ CCLAU_ PCOMA_
+        ;
+tipoSimple
+	: INT_
+	| BOOL_
 	;
-	
-cabecera_funcion
-	: tipo_simple ID_ PARENTESIS1_ parametros_formales PARENTESIS2_
+declaracionFuncion
+	: cabeceraFuncion bloque
 	;
-	
-parametros_formales
-	:
-	| lista_parametros_formales
+cabeceraFuncion
+	: tipoSimple ID_ APAR_ parametrosFormales CPAR_
 	;
-
-lista_parametros_formales
-	: tipo_simple ID_
-	| tipo_simple ID_ COMA_ lista_parametros_formales
+parametrosFormales
+	: listaParametrosFormales
+	|
 	;
-	
+listaParametrosFormales
+	: tipoSimple ID_
+	| tipoSimple ID_ COMA_ listaParametrosFormales
+	;
 bloque
-	: LLAVE1_ declaracion_variable_local lista_instrucciones RETURN_ expresion SEMICOLON_ LLAVE2_
+	: ALLAVE_ declaracionVariableLocal listaInstrucciones RETURN_ expresion PCOMA_ CLLAVE_
 	;
-	
-declaracion_variable_local
-	: declaracion_variable_local declaracion_variable
+declaracionVariableLocal
+	: declaracionVariableLocal declaracionVariable
 	|
 	;
-
-lista_instrucciones
-	: lista_instrucciones instruccion
+listaInstrucciones
+	: listaInstrucciones instruccion
 	|
 	;
-
 instruccion
-    : LLAVE1_ lista_instrucciones LLAVE2_
-    | instruccion_asignacion
-    | instruccion_seleccion
-    | instruccion_entrada_salida
-	| instruccion_iteracion
-    ;
-
-instruccion_asignacion
-	: ID_ IGUAL_ expresion SEMICOLON_
-	| ID_ CORCHETE1_ expresion CORCHETE2_ IGUAL_ expresion SEMICOLON_
+	: ALLAVE_ listaInstrucciones CLLAVE_
+	| instruccionAsignacion
+	| instruccionSeleccion
+	| instruccionEntradaSalida
+	| instruccionIteracion
 	;
-	
-instruccion_entrada_salida
-	: READ_ PARENTESIS1_ ID_ PARENTESIS2_ SEMICOLON_
-	| PRINT_ PARENTESIS1_ expresion PARENTESIS2_ SEMICOLON_
+instruccionAsignacion
+	: ID_ IGUAL_ expresion PCOMA_
+	| ID_ ACLAU_ expresion CCLAU_ IGUAL_ expresion PCOMA_
 	;
-	
-instruccion_seleccion
-	: IF_ PARENTESIS1_ expresion PARENTESIS2_ instruccion ELSE_ instruccion
+instruccionEntradaSalida
+	: READ_ APAR_ ID_ CPAR_ PCOMA_
+	| PRINT_ APAR_ expresion CPAR_ PCOMA_
 	;
-	
-instruccion_iteracion
-	: FOR_ PARENTESIS1_ expresion_opcional SEMICOLON_ expresion SEMICOLON_ expresion_opcional PARENTESIS2_ instruccion
+instruccionSeleccion
+	: IF_ APAR_ expresion CPAR_ instruccion ELSE_ instruccion
 	;
-	
-expresion_opcional
+instruccionIteracion
+	: FOR_ APAR_ expresionOpcional PCOMA_ expresion PCOMA_ expresionOpcional CPAR_ instruccion
+	;
+expresionOpcional
 	: expresion
 	| ID_ IGUAL_ expresion
 	|
 	;
-
 expresion
-    : expresion_igualdad
-    | expresion operador_logico expresion_igualdad
-    ;
-	
-expresion_igualdad
-	: expresion_relacional
-	| expresion_igualdad operador_igualdad expresion_relacional
+	: expresionIgualdad
+	| expresion operadorLogico expresionIgualdad
 	;
-	
-expresion_relacional
-	: expresion_aditiva
-	| expresion_relacional operador_relacional expresion_aditiva
+expresionIgualdad
+	: expresionRelacional
+	| expresionIgualdad operadorIgualdad expresionRelacional
 	;
-	
-expresion_aditiva
-	: expresion_multiplicativa
-	| expresion_aditiva operador_aditivo expresion_multiplicativa
+expresionRelacional
+	: expresionAditiva
+	| expresionRelacional operadorRelacional expresionAditiva
 	;
-	
-expresion_multiplicativa
-	: expresion_unaria
-	| expresion_multiplicativa operador_multiplicativo expresion_unaria
+expresionAditiva
+	: expresionMultiplicativa
+	| expresionAditiva operadorAditivo expresionMultiplicativa
 	;
-	
-expresion_unaria
-	: expresion_sufija
-	| operador_unario expresion_unaria
-	| operador_incremento ID_
+expresionMultiplicativa
+	: expresionUnitaria
+	| expresionMultiplicativa operadorMultiplicativo expresionUnitaria
 	;
-	
-expresion_sufija
-	: PARENTESIS1_ expresion PARENTESIS2_
-	| ID_ operador_incremento
-	| ID_ CORCHETE1_ expresion CORCHETE2_
-	| ID_ PARENTESIS1_ parametros_actuales PARENTESIS2_
+expresionUnitaria
+	: expresionSufija
+	| operadorUnitario expresionUnitaria
+	| operadorIncremento ID_
+	;
+expresionSufija
+	: APAR_ expresion CPAR_ 
+	| ID_ operadorIncremento
+	| ID_ ACLAU_ expresion CCLAU_
+	| ID_ APAR_ parametrosActuales CPAR_
 	| ID_
 	| constante
 	;
-	
-parametros_actuales
-	: lista_parametros_actuales
+parametrosActuales
+	: listaParametrosActuales
 	|
 	;
-	
-lista_parametros_actuales
+listaParametrosActuales
 	: expresion
-	| expresion COMA_ lista_parametros_actuales
+	| expresion COMA_ listaParametrosActuales
 	;
-	
 constante
 	: CTE_
 	| TRUE_
 	| FALSE_
 	;
-	
-operador_logico
-	: OPAND_
-	| OPOR_
+operadorLogico
+	: AND_
+	| OR_
 	;
-	
-operador_igualdad
-	: OPIGUAL_
-	| OPNOTIGUAL_
+operadorIgualdad
+	: DIGUAL_
+	| DIF_
 	;
-	
-operador_relacional
-	: COMPMAYOR_
-	| COMPMENOR_
-	| COMPMAYORIG_
-	| COMPMENORIG_
+operadorRelacional
+	: MAY_
+	| MEN_ 
+	| MAYIG_
+	| MENIG_
 	;
-	
-operador_aditivo
-	: OPSUMA_
-	| OPRESTA_
+operadorAditivo
+	: MAS_
+	| MENOS_
 	;
-	
-operador_multiplicativo
-	: OPMULT_
-	| OPDIV_
+operadorMultiplicativo
+	: POR_
+	| DIV_
 	;
-	
-operador_unario
-	: OPSUMA_
-	| OPRESTA_
-	| OPNOT_
+operadorUnitario
+	: MAS_
+	| MENOS_
+	| NEG_
 	;
-	
-operador_incremento
-	: OPINCREMENTO_
-	| OPDECREMENTO_
+operadorIncremento
+	: DMAS_
+	| DMENOS_
 	;
-
-
 %%
+/*****************************************************************************/
+int verbosidad = FALSE;                  /* Flag si se desea una traza       */
+
+/*****************************************************************************/
+void yyerror(const char *msg)
+/*  Tratamiento de errores.                                                  */
+{  fprintf(stderr, "\nError en la linea %d: %s\n", yylineno, msg); }
+
+/*****************************************************************************/
+int main (int argc, char **argv) 
+/* Gestiona la linea de comandos e invoca al analizador sintactico-semantico.*/
+{ int i, n=1 ;
+
+  for (i=1; i<argc; ++i)
+    if (strcmp(argv[i], "-v")==0) { verbosidad = TRUE; n++; }
+  if (argc == n+1)
+    if ((yyin = fopen (argv[n], "r")) == NULL) {
+      fprintf (stderr, "El fichero '%s' no es valido\n", argv[n]) ;     
+      fprintf (stderr, "Uso: cmc [-v] fichero\n");
+    } 
+  else yyparse();
+  else fprintf (stderr, "Uso: cmc [-v] fichero\n");
+
+  return (0);
+}
+/*****************************************************************************/
