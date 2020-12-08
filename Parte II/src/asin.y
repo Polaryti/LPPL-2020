@@ -32,21 +32,33 @@ listaDeclaraciones
         ;
 declaracion   
 	: declaracionVariable
-	{ 
-		if (!insertarTDS($2, $1, dvar, -1))
-            yyerror(E_REPEATED_DECLARATION);
-        else
-            dvar += TALLA_TIPO_SIMPLE; 
-	}
 	| declaracionFuncion
         ;
 declaracionVariable    
 	: tipoSimple ID_ PCOMA_ 
+	{ 
+		if (!insertarTDS($2, $1, dvar, -1))
+            yyerror("Ya existe una variable con el mismo nombre");
+        else
+            dvar += TALLA_TIPO_SIMPLE; 
+	}
     | tipoSimple ID_ ACLAU_ CTE_ CCLAU_ PCOMA_
+	{ 
+		int numelem = $4; int ref;
+        if (numelem <= 0) {
+            yyerror("El tamaño del array no es valido");
+            numelem = 0;
+        }
+        ref = insertaTDArray($1, numelem);
+        if (!insertarTDS($2, T_ARRAY, dvar, ref))
+            yyerror("Ya existe una variable con el mismo nombre");
+        else
+            dvar += numelem * TALLA_TIPO_SIMPLE; 
+	}
     ;
 tipoSimple
-	: INT_
-	| BOOL_
+	: INT_  { $$ = T_ENTERO; }
+    | BOOL_ { $$ = T_LOGICO; }
 	;
 declaracionFuncion
 	: cabeceraFuncion bloque
