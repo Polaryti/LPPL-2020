@@ -18,7 +18,8 @@
 %type  <cent>  tipoSimple
 %type  <cent>  operadorLogico operadorIgualdad operadorRelacional operadorAditivo
 %type  <cent>  operadorMultiplicativo operadorUnitario operadorIncremento
-
+%type <expr> expresionOpcional expresion expresionIgualdad expresionRelacional 
+%type <expr> expresionAditiva expresionMultiplicativa expresionUnitaria expresionSufija
 
 %%
 
@@ -31,6 +32,12 @@ listaDeclaraciones
         ;
 declaracion   
 	: declaracionVariable
+	{ 
+		if (!insertarTDS($2, $1, dvar, -1))
+            yyerror(E_REPEATED_DECLARATION);
+        else
+            dvar += TALLA_TIPO_SIMPLE; 
+	}
 	| declaracionFuncion
         ;
 declaracionVariable    
@@ -94,32 +101,32 @@ instruccionSeleccion
 instruccionIteracion
 	: FOR_ APAR_ expresionOpcional PCOMA_ expresion PCOMA_ expresionOpcional CPAR_ instruccion
 	;
-expresionOpcional
+expresionOpcional 
 	: expresion
 	| ID_ IGUAL_ expresion
 	|
 	;
-expresion
+expresion 
 	: expresionIgualdad
 	| expresion operadorLogico expresionIgualdad
 	;
-expresionIgualdad
+expresionIgualdad 
 	: expresionRelacional
 	| expresionIgualdad operadorIgualdad expresionRelacional
 	;
-expresionRelacional
+expresionRelacional 
 	: expresionAditiva
 	| expresionRelacional operadorRelacional expresionAditiva
 	;
-expresionAditiva
+expresionAditiva 
 	: expresionMultiplicativa
 	| expresionAditiva operadorAditivo expresionMultiplicativa
 	;
-expresionMultiplicativa
+expresionMultiplicativa 
 	: expresionUnitaria
 	| expresionMultiplicativa operadorMultiplicativo expresionUnitaria
 	;
-expresionUnitaria
+expresionUnitaria 
 	: expresionSufija
 	| operadorUnitario expresionUnitaria
 	| operadorIncremento ID_
