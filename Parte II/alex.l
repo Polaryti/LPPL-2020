@@ -12,6 +12,12 @@
 %option nounput
 %option yylineno
 
+/*Revisar*/
+%union {
+    char *ident; /* Nombre del identificador */
+    int cent; /* Valor de la cte numérica entera */
+}
+
 delimitador [ \t\n]+
 minus		[a-z]
 mayus		[A-Z]
@@ -62,8 +68,8 @@ comentario	"//".*
 "bool"         { retornar (BOOL_) ; }
 "true"         { retornar (TRUE_) ; }
 "false"         { retornar (FALSE_) ; }
-{id}            { retornar (ID_) ; }
-{cte}        	{ retornar (CTE_) ; }
+{id}             { yylval.ident = strdup(yytext); retornar(ID_); }
+{cte}        	 { yylval.cent = atoi(yytext); retornar(CTE_); }
 {comentario}	{ if (verbosidad) ECHO ; }
 .		        { yyerror("Caracter desconocido") ;}
 %%

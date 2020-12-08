@@ -1,6 +1,3 @@
-/*****************************************************************************/
-/**  Ejemplo de BISON-I: S E M - 2          2019-2020 <jbenedi@dsic.upv.es> **/
-/*****************************************************************************/
 %{
 #include <stdio.h>
 #include <string.h>
@@ -11,10 +8,18 @@
 	int cent;
 	char *ident;
 }
-%token INT_ MAS_ DMAS_ MENOS_ DMENOS_ POR_ DIV_ IGUAL_ CTE_ ID_
-%token BOOL_ TRUE_ FALSE_ MAY_ MEN_ MAYIG_ MENIG_ DIGUAL_ DIF_ NEG_ AND_ OR_
+%token MAS_ DMAS_ MENOS_ DMENOS_ POR_ DIV_ IGUAL_ 
+%token TRUE_ FALSE_ MAY_ MEN_ MAYIG_ MENIG_ DIGUAL_ DIF_ NEG_ AND_ OR_
 %token APAR_ CPAR_ ALLAVE_ CLLAVE_ ACLAU_ CCLAU_ PCOMA_ COMA_
 %token PRINT_ RETURN_ FOR_ IF_ ELSE_ READ_ 
+
+%token <cent>  CTE_ BOOL_ INT_
+%token <ident> ID_
+%type  <cent>  tipoSimple
+%type  <cent>  operadorLogico operadorIgualdad operadorRelacional operadorAditivo
+%type  <cent>  operadorMultiplicativo operadorUnitario operadorIncremento
+
+
 %%
 
 programa 
@@ -30,8 +35,8 @@ declaracion
         ;
 declaracionVariable    
 	: tipoSimple ID_ PCOMA_ 
-        | tipoSimple ID_ ACLAU_ CTE_ CCLAU_ PCOMA_
-        ;
+    | tipoSimple ID_ ACLAU_ CTE_ CCLAU_ PCOMA_
+    ;
 tipoSimple
 	: INT_
 	| BOOL_
@@ -69,7 +74,14 @@ instruccion
 	| instruccionIteracion
 	;
 instruccionAsignacion
-	: ID_ IGUAL_ expresion PCOMA_
+	: ID_ IGUAL_ expresion PCOMA_ 
+		{SIMB sim = obtTDS($1);
+		
+		 if (sim.tipo == T_ERROR) yyerror("Objeto no declarado");
+		 else if (! ((sim.tipo == $3.tipo == T_ENTERO) || (sim.tipo == $3.tipo == T_LOGICO)))
+		 	yyerror("Error de tipos en la instrucción de asignación");
+		}
+
 	| ID_ ACLAU_ expresion CCLAU_ IGUAL_ expresion PCOMA_
 	;
 instruccionEntradaSalida
@@ -155,7 +167,7 @@ operadorMultiplicativo
 	: POR_
 	| DIV_
 	;
-operadorUnitario
+operadorUnitario 
 	: MAS_
 	| MENOS_
 	| NEG_
