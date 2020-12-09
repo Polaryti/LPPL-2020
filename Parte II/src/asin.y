@@ -137,8 +137,12 @@ expresionIgualdad
 	| expresionIgualdad operadorIgualdad expresionRelacional
 	;
 expresionRelacional 
-	: expresionAditiva
+	: expresionAditiva {$$ = $1;}
 	| expresionRelacional operadorRelacional expresionAditiva
+		{
+			if (!($1==$3==T_ENTERO)) yyerror("Tipo de expresión no válido");
+			else $$=T_ENTERO;
+		}
 	;
 expresionAditiva 
 	: expresionMultiplicativa
