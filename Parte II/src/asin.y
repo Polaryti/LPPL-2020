@@ -160,7 +160,7 @@ expresionSufija
 		
 		 if (sim.telem == T_ERROR) yyerror("Objeto no declarado");
 		 else if (expresion != T_ENTERO) yyerror("Indicador de posición no válido")
-		 else if (sim.telem == T_LOGICO || sim.telem == T_ENTERO) $$ = sim.tipo;
+		 else if (sim.telem == T_LOGICO || sim.telem == T_ENTERO) $$ = sim.telem;
 		}
 	| ID_ APAR_ parametrosActuales CPAR_
 	| ID_ 
@@ -207,13 +207,13 @@ operadorMultiplicativo
 	| DIV_
 	;
 operadorUnitario 
-	: MAS_ { $$ = OP_MAS;   }
-	| MENOS_ { $$ = OP_MENOS; }
-	| NEG_ { $$ = OP_NOT;   }
+	: MAS_ 
+	| MENOS_ 
+	| NEG_ 
 	;
 operadorIncremento
-	: DMAS_  { $$ = OP_INC; }
-	| DMENOS_ { $$ = OP_DEC; }
+	: DMAS_ 
+	| DMENOS_
 	;
 %%
 /*****************************************************************************/
