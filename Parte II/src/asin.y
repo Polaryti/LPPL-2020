@@ -98,7 +98,7 @@ instruccionAsignacion
 		{SIMB sim = obtTDS($1);
 		
 		 if (sim.t == T_ERROR) yyerror("Objeto no declarado");
-		 else if (! ((sim.tipo == $3.t == T_ENTERO) || (sim.t == $3.t == T_LOGICO)))
+		 else if (! ((sim.tipo == $3 == T_ENTERO) || (sim.t == $3 == T_LOGICO)))
 		 	yyerror("Error de tipos en la instrucción de asignación");
 		}
 
@@ -108,8 +108,8 @@ instruccionAsignacion
 			DIM dim = obtTdA(sim.ref);
 
 			if (dim.telem == T_ERROR) yyerror("Array no declarada");
-			else if ($3.t != T_ENTERO) yyerror("El indice debe ser un entero positivo");
-			else if (!((dim.telem == $6.t == T_ENTERO) || (sim.tipo == $3.tipo == T_LOGICO))) 
+			else if ($3 != T_ENTERO) yyerror("El indice debe ser un entero positivo");
+			else if (!((dim.telem == $6 == T_ENTERO) || (dim.telem == $6 == T_LOGICO))) 
 				yyerror("Error de tipos en la instrucción de asignación de la array");
 		}
 	;
@@ -145,8 +145,12 @@ expresionAditiva
 	| expresionAditiva operadorAditivo expresionMultiplicativa
 	;
 expresionMultiplicativa 
-	: expresionUnitaria
+	: expresionUnitaria {$$ = $1;}
 	| expresionMultiplicativa operadorMultiplicativo expresionUnitaria
+		{
+			if (!($1==$3==T_ENTERO)) yyerror("Tipo de expresión no válido");
+			else $$=T_ENTERO;
+		}
 	;
 expresionUnitaria 
 	: expresionSufija
@@ -167,7 +171,7 @@ expresionUnitaria
 	}
 	;
 expresionSufija
-	: APAR_ expresion CPAR_ {$$ = $2}
+	: APAR_ expresion CPAR_ {$$ = $2;}
 	| ID_ operadorIncremento
 		{SIMB sim = obtTDS($1);
 		
@@ -192,7 +196,7 @@ expresionSufija
 		 if (sim.t == T_ERROR) yyerror("Objeto no declarado");
 		 else $$ = sim.t;
 		}
-	| constante {$$ = $1}
+	| constante {$$ = $1;}
 	;
 parametrosActuales
 	: listaParametrosActuales
@@ -203,9 +207,9 @@ listaParametrosActuales
 	| expresion COMA_ listaParametrosActuales
 	;
 constante
-	: CTE_   {$$ = T_ENTERO}
-	| TRUE_  {$$ = T_LOGICO}
-	| FALSE_ {$$ = T_LOGICO}
+	: CTE_   {$$ = T_ENTERO;}
+	| TRUE_  {$$ = T_LOGICO;}
+	| FALSE_ {$$ = T_LOGICO;}
 	;
 operadorLogico
 	: AND_
