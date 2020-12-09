@@ -202,9 +202,9 @@ expresionMultiplicativa
 			else $$=T_ENTERO;
 		}
 	;
-expresionUnitaria 
+expresionUnario 
 	: expresionSufija {$$ = $1;}
-	| operadorUnitario expresionUnitaria
+	| operadorUnario expresionUnaria
 	{
 		if ($2 == T_ERROR) {
 			yyerror("Expresion no valida");
