@@ -160,9 +160,9 @@ listaParametrosActuales
 	| expresion COMA_ listaParametrosActuales
 	;
 constante
-	: CTE_
-	| TRUE_
-	| FALSE_
+	: CTE_   {$$ = T_ENTERO}
+	| TRUE_  {$$ = T_LOGICO}
+	| FALSE_ {$$ = T_LOGICO}
 	;
 operadorLogico
 	: AND_
