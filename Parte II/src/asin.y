@@ -152,6 +152,19 @@ expresionUnitaria
 	: expresionSufija
 	| operadorUnitario expresionUnitaria
 	| operadorIncremento ID_
+	{
+		SIMB sim = obtTDS($2);
+
+		if (sim.t == T_ERROR) {
+			yyerror("La variable no esta declarada");
+		}
+		else if (sim.t != T_ENTERO) {
+			yyerror("El operador incremento solo se puede aplicar a variables enteras");
+		}
+		else {
+			$$ = sim.t;
+		}
+	}
 	;
 expresionSufija
 	: APAR_ expresion CPAR_ 
