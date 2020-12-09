@@ -102,6 +102,14 @@ instruccionAsignacion
 		}
 
 	| ID_ ACLAU_ expresion CCLAU_ IGUAL_ expresion PCOMA_
+		{
+			DIM dim = obtTdA($1);
+
+			if (dim.telem == T_ERROR) yyerror("Array no declarada");
+			else if ($3.t != T_ENTERO) yyerror("El indice debe ser un entero positivo");
+			else if (!((dim.telem == $6.t == T_ENTERO) || (sim.tipo == $3.tipo == T_LOGICO))) 
+				yyerror("Error de tipos en la instrucción de asignación de la array");
+		}
 	;
 instruccionEntradaSalida
 	: READ_ APAR_ ID_ CPAR_ PCOMA_
