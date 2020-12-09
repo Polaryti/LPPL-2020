@@ -66,6 +66,8 @@ declaracionFuncion
 	;
 cabeceraFuncion
 	: tipoSimple ID_ APAR_ parametrosFormales CPAR_
+		{
+		}
 	;
 parametrosFormales
 	: listaParametrosFormales
@@ -193,8 +195,8 @@ expresionAditiva
 	}
 	;
 expresionMultiplicativa 
-	: expresionUnitaria {$$ = $1;}
-	| expresionMultiplicativa operadorMultiplicativo expresionUnitaria
+	: expresionUnaria {$$ = $1;}
+	| expresionMultiplicativa operadorMultiplicativo expresionUnaria
 		{
 			if (!($1==$3==T_ENTERO)) yyerror("Tipo de expresión no válido");
 			else $$=T_ENTERO;
@@ -288,7 +290,7 @@ operadorMultiplicativo
 	: POR_
 	| DIV_
 	;
-operadorUnitario 
+operadorUnario 
 	: MAS_ 
 	| MENOS_ 
 	| NEG_ 
