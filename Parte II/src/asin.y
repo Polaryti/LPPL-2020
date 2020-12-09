@@ -124,8 +124,14 @@ instruccionIteracion
 	: FOR_ APAR_ expresionOpcional PCOMA_ expresion PCOMA_ expresionOpcional CPAR_ instruccion
 	;
 expresionOpcional 
-	: expresion
-	| ID_ IGUAL_ expresion
+	: expresion {$$ = $1;}
+	| ID_ IGUAL_ expresion 
+		{SIMB sim = obtTDS($1);
+		
+		 if (sim.t == T_ERROR) yyerror("Objeto no declarado");
+		 else if (sim.t == $3 == T_ENTERO || sim.t == $3 == T_LOGICO) $$ = sim.t;
+		 else yyerror("Tipo de la variable inadecuado");
+		}
 	|
 	;
 expresion 
