@@ -127,6 +127,9 @@ instruccionSeleccion
 	;
 instruccionIteracion
 	: FOR_ APAR_ expresionOpcional PCOMA_ expresion PCOMA_ expresionOpcional CPAR_ instruccion
+		{
+			if ($5 != T_LOGICO) yyerror("Expresión de evaluación inválida");
+		}
 	;
 expresionOpcional 
 	: expresion {$$ = $1;}
