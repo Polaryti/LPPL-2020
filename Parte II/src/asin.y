@@ -115,7 +115,19 @@ instruccionAsignacion
 	;
 instruccionEntradaSalida
 	: READ_ APAR_ ID_ CPAR_ PCOMA_
+	{
+		SIMB sim = obtTDS($3);
+
+		if (sim.t == T_ERROR) {
+			yyerror("Variable no declarada");
+		} 
+	}
 	| PRINT_ APAR_ expresion CPAR_ PCOMA_
+	{
+		if ($3 == T_ERROR) {
+			yyerror("Expresion no valida");
+		} 
+	}
 	;
 instruccionSeleccion
 	: IF_ APAR_ expresion CPAR_ instruccion ELSE_ instruccion
