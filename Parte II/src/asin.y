@@ -104,7 +104,8 @@ instruccionAsignacion
 
 	| ID_ ACLAU_ expresion CCLAU_ IGUAL_ expresion PCOMA_
 		{
-			DIM dim = obtTdA($1);
+			SIMB sim = obtTDS($1);
+			DIM dim = obtTdA(sim.ref);
 
 			if (dim.telem == T_ERROR) yyerror("Array no declarada");
 			else if ($3.t != T_ENTERO) yyerror("El indice debe ser un entero positivo");
