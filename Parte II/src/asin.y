@@ -129,8 +129,14 @@ instruccionIteracion
 	: FOR_ APAR_ expresionOpcional PCOMA_ expresion PCOMA_ expresionOpcional CPAR_ instruccion
 	;
 expresionOpcional 
-	: expresion
-	| ID_ IGUAL_ expresion
+	: expresion {$$ = $1;}
+	| ID_ IGUAL_ expresion 
+		{SIMB sim = obtTDS($1);
+		
+		 if (sim.t == T_ERROR) yyerror("Objeto no declarado");
+		 else if (sim.t == $3 == T_ENTERO || sim.t == $3 == T_LOGICO) $$ = sim.t;
+		 else yyerror("Tipo de la variable inadecuado");
+		}
 	|
 	;
 expresion 
@@ -145,12 +151,20 @@ expresion
 	}
 	;
 expresionIgualdad 
-	: expresionRelacional
+	: expresionRelacional {$$ = $1;}
 	| expresionIgualdad operadorIgualdad expresionRelacional
+		{
+			if (!($1==$3==T_ENTERO || $1==$3==T_LOGICO)) yyerror("Tipo de expresión no válido");
+			else $$=$1;
+		}
 	;
 expresionRelacional 
-	: expresionAditiva
+	: expresionAditiva {$$ = $1;}
 	| expresionRelacional operadorRelacional expresionAditiva
+		{
+			if (!($1==$3==T_ENTERO)) yyerror("Tipo de expresión no válido");
+			else $$=T_ENTERO;
+		}
 	;
 expresionAditiva 
 	: expresionMultiplicativa
