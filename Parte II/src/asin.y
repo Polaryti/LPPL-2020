@@ -187,13 +187,13 @@ operadorMultiplicativo
 	| DIV_
 	;
 operadorUnitario 
-	: MAS_
-	| MENOS_
-	| NEG_
+	: MAS_ { $$ = OP_MAS;   }
+	| MENOS_ { $$ = OP_MENOS; }
+	| NEG_ { $$ = OP_NOT;   }
 	;
 operadorIncremento
-	: DMAS_
-	| DMENOS_
+	: DMAS_  { $$ = OP_INC; }
+	| DMENOS_ { $$ = OP_DEC; }
 	;
 %%
 /*****************************************************************************/
