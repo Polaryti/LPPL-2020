@@ -133,8 +133,12 @@ expresion
 	| expresion operadorLogico expresionIgualdad
 	;
 expresionIgualdad 
-	: expresionRelacional
+	: expresionRelacional {$$ = $1;}
 	| expresionIgualdad operadorIgualdad expresionRelacional
+		{
+			if (!($1==$3==T_ENTERO || $1==$3==T_LOGICO)) yyerror("Tipo de expresión no válido");
+			else $$=$1;
+		}
 	;
 expresionRelacional 
 	: expresionAditiva {$$ = $1;}
