@@ -201,8 +201,15 @@ expresionMultiplicativa
 		}
 	;
 expresionUnitaria 
-	: expresionSufija
+	: expresionSufija {$$ = $1;}
 	| operadorUnitario expresionUnitaria
+	{
+		if ($2 == T_ERROR) {
+			yyerror("Expresion no valida");
+		} else if ($2 != T_ENTERO || $2 != T_LOGICO) {
+			yyerror("Tipo de la expresion no valido");
+		}
+	}
 	| operadorIncremento ID_
 	{
 		SIMB sim = obtTDS($2);
