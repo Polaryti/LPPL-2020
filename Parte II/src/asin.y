@@ -67,11 +67,17 @@ declaracionFuncion
 cabeceraFuncion
 	: tipoSimple ID_ APAR_ parametrosFormales CPAR_
 		{
+			if (!insTdS($2,FUNCION,$1,0,-1,$4)) yyerror("Desclaración repetida")
+			if (strcmp($2,"main\0"==0)) $$ = -1;
+			else $$ = 0;
 		}
 	;
 parametrosFormales
 	: listaParametrosFormales
-	|
+		{
+			$$ = $1;
+		}
+	| {$$ = insTdD(-1,T_VACIO);}
 	;
 listaParametrosFormales
 	: tipoSimple ID_
