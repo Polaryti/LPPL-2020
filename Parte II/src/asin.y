@@ -66,6 +66,8 @@ declaracionFuncion
 	;
 cabeceraFuncion
 	: tipoSimple ID_ APAR_ parametrosFormales CPAR_
+		{
+		}
 	;
 parametrosFormales
 	: listaParametrosFormales
