@@ -119,6 +119,11 @@ instruccionEntradaSalida
 	;
 instruccionSeleccion
 	: IF_ APAR_ expresion CPAR_ instruccion ELSE_ instruccion
+	{
+		if ($3 != T_LOGICO) {
+			yyerror("La expresion no es valida");
+		}
+	}
 	;
 instruccionIteracion
 	: FOR_ APAR_ expresionOpcional PCOMA_ expresion PCOMA_ expresionOpcional CPAR_ instruccion
@@ -131,6 +136,13 @@ expresionOpcional
 expresion 
 	: expresionIgualdad
 	| expresion operadorLogico expresionIgualdad
+	{
+		if (!($1 == $3 == T_LOGICO)) {
+			yyerror("Tipo de expresión no válido");
+		} else {
+			$$ = T_LOGICO;
+		}
+	}
 	;
 expresionIgualdad 
 	: expresionRelacional
@@ -143,6 +155,13 @@ expresionRelacional
 expresionAditiva 
 	: expresionMultiplicativa
 	| expresionAditiva operadorAditivo expresionMultiplicativa
+	{
+		if (!($1 == $3 == T_ENTERO)) {
+			yyerror("Tipo de expresión no válido");
+		} else {
+			$$=T_ENTERO;
+		}
+	}
 	;
 expresionMultiplicativa 
 	: expresionUnitaria {$$ = $1;}
