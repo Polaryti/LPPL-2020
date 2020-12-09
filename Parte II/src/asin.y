@@ -97,8 +97,8 @@ instruccionAsignacion
 	: ID_ IGUAL_ expresion PCOMA_ 
 		{SIMB sim = obtTDS($1);
 		
-		 if (sim.tipo == T_ERROR) yyerror("Objeto no declarado");
-		 else if (! ((sim.tipo == $3.tipo == T_ENTERO) || (sim.tipo == $3.tipo == T_LOGICO)))
+		 if (sim.t == T_ERROR) yyerror("Objeto no declarado");
+		 else if (! ((sim.tipo == $3.t == T_ENTERO) || (sim.t == $3.t == T_LOGICO)))
 		 	yyerror("Error de tipos en la instrucción de asignación");
 		}
 
@@ -148,8 +148,19 @@ expresionSufija
 	: APAR_ expresion CPAR_ 
 	| ID_ operadorIncremento
 	| ID_ ACLAU_ expresion CCLAU_
+		{DIM sim = obtTDA($1);
+		
+		 if (sim.telem == T_ERROR) yyerror("Objeto no declarado");
+		 else if (expresion != T_ENTERO) yyerror("Indicador de posición no válido")
+		 else if (sim.telem == T_LOGICO || sim.telem == T_ENTERO) $$ = sim.tipo;
+		}
 	| ID_ APAR_ parametrosActuales CPAR_
 	| ID_ 
+		{SIMB sim = obtTDS($1);
+		
+		 if (sim.t == T_ERROR) yyerror("Objeto no declarado");
+		 else if (sim.t == T_LOGICO || sim.t == T_ENTERO) $$ = sim.t;
+		}
 	| constante {$$ = $1}
 	;
 parametrosActuales
