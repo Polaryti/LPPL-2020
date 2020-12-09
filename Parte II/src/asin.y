@@ -18,8 +18,9 @@
 %type  <cent>  tipoSimple
 %type  <cent>  operadorLogico operadorIgualdad operadorRelacional operadorAditivo
 %type  <cent>  operadorMultiplicativo operadorUnitario operadorIncremento
-%type <expr> expresionOpcional expresion expresionIgualdad expresionRelacional 
-%type <expr> expresionAditiva expresionMultiplicativa expresionUnitaria expresionSufija
+%type <cent> expresionOpcional expresion expresionIgualdad expresionRelacional 
+%type <cent> expresionAditiva expresionMultiplicativa expresionUnitaria expresionSufija
+%type <cent> constante
 
 %%
 
@@ -148,8 +149,8 @@ expresionSufija
 	| ID_ operadorIncremento
 	| ID_ ACLAU_ expresion CCLAU_
 	| ID_ APAR_ parametrosActuales CPAR_
-	| ID_
-	| constante
+	| ID_ 
+	| constante {$$ = $1}
 	;
 parametrosActuales
 	: listaParametrosActuales
