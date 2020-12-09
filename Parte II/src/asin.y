@@ -167,21 +167,30 @@ expresionUnitaria
 	}
 	;
 expresionSufija
-	: APAR_ expresion CPAR_ 
+	: APAR_ expresion CPAR_ {$$ = $2}
 	| ID_ operadorIncremento
-	| ID_ ACLAU_ expresion CCLAU_
-		{DIM sim = obtTDA($1);
+		{SIMB sim = obtTDS($1);
 		
-		 if (sim.telem == T_ERROR) yyerror("Objeto no declarado");
-		 else if (expresion != T_ENTERO) yyerror("Indicador de posición no válido")
-		 else if (sim.telem == T_LOGICO || sim.telem == T_ENTERO) $$ = sim.telem;
+		 if (sim.t == T_ERROR) yyerror("Objeto no declarado");
+		 else if (sim.t == T_ENTERO) $$ = sim.t;
+		 else yyerror("Tipo de la variable inadecuado");
+		}
+	| ID_ ACLAU_ expresion CCLAU_
+		{SIMB sim = obtTDS($1);
+		
+		 if (sim.t == T_ERROR) yyerror("Objeto no declarado");
+		 else if (expresion != T_ENTERO) yyerror("Indicador de posición no válido");
+		 else { 
+		 	DIM dim = obtTDA(sim.ref);
+			$$ = dim.telem;
+		 };
 		}
 	| ID_ APAR_ parametrosActuales CPAR_
 	| ID_ 
 		{SIMB sim = obtTDS($1);
 		
 		 if (sim.t == T_ERROR) yyerror("Objeto no declarado");
-		 else if (sim.t == T_LOGICO || sim.t == T_ENTERO) $$ = sim.t;
+		 else $$ = sim.t;
 		}
 	| constante {$$ = $1}
 	;
