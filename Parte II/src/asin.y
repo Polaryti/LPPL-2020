@@ -329,9 +329,18 @@ operadorMultiplicativo
 	;
 
 operadorUnario 
-	: MAS_ 
+	: MAS_
+	{
+		$$ = T_ENTERO;
+	} 
 	| MENOS_ 
-	| NEG_ 
+	{
+		$$ = T_ENTERO;
+	}
+	| NEG_
+	{
+		$$ = T_LOGICO;
+	}
 	;
 
 operadorIncremento
