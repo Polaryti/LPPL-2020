@@ -17,6 +17,7 @@
 %token <cent>  CTE_ BOOL_ INT_
 %token <ident> ID_
 %type  <cent>  tipoSimple
+%type  <lista> listaParametrosFormales
 %type  <cent>  operadorUnario
 %type  <cent>  expresionOpcional expresion expresionIgualdad expresionRelacional 
 %type  <cent>  expresionAditiva expresionMultiplicativa expresionUnitaria expresionSufija
