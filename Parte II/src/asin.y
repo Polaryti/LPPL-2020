@@ -302,10 +302,11 @@ expresionSufija
 
 		}
 	| ID_ 
-		{SIMB sim = obtTDS($1);
-		
-		 if (sim.t == T_ERROR) yyerror("Objeto no declarado");
-		 else $$ = sim.t;
+		{
+			SIMB sim = obtTDS($1);
+
+		 	if (sim.t == T_ERROR) yyerror("Objeto no declarado");
+		 	else $$ = sim.t;
 		}
 	| constante {$$ = $1;}
 	;
