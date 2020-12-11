@@ -18,23 +18,25 @@
 %type  <cent>  tipoSimple
 %type  <cent>  operadorLogico operadorIgualdad operadorRelacional operadorAditivo
 %type  <cent>  operadorMultiplicativo operadorUnitario operadorIncremento
-%type <cent> expresionOpcional expresion expresionIgualdad expresionRelacional 
-%type <cent> expresionAditiva expresionMultiplicativa expresionUnitaria expresionSufija
-%type <cent> constante
+%type  <cent> expresionOpcional expresion expresionIgualdad expresionRelacional 
+%type  <cent> expresionAditiva expresionMultiplicativa expresionUnitaria expresionSufija
+%type  <cent> constante
 
 %%
-
 programa 
 	: listaDeclaraciones
-        ;
+    ;
+
 listaDeclaraciones    
 	: declaracion
 	|listaDeclaraciones declaracion
-        ;
+    ;
+
 declaracion   
 	: declaracionVariable
 	| declaracionFuncion
-        ;
+    ;
+
 declaracionVariable    
 	: tipoSimple ID_ PCOMA_ 
 	{ 
@@ -57,13 +59,16 @@ declaracionVariable
             dvar += numelem * TALLA_TIPO_SIMPLE; 
 	}
     ;
+
 tipoSimple
 	: INT_  { $$ = T_ENTERO; }
     | BOOL_ { $$ = T_LOGICO; }
 	;
+
 declaracionFuncion
 	: cabeceraFuncion bloque
 	;
+
 cabeceraFuncion
 	: tipoSimple ID_ APAR_ parametrosFormales CPAR_
 		{
@@ -72,6 +77,7 @@ cabeceraFuncion
 			else $$ = 0;
 		}
 	;
+
 parametrosFormales
 	: listaParametrosFormales
 		{
@@ -79,21 +85,26 @@ parametrosFormales
 		}
 	| {$$ = insTdD(-1,T_VACIO);}
 	;
+
 listaParametrosFormales
 	: tipoSimple ID_
 	| tipoSimple ID_ COMA_ listaParametrosFormales
 	;
+
 bloque
 	: ALLAVE_ declaracionVariableLocal listaInstrucciones RETURN_ expresion PCOMA_ CLLAVE_
 	;
+
 declaracionVariableLocal
 	: declaracionVariableLocal declaracionVariable
 	|
 	;
+
 listaInstrucciones
 	: listaInstrucciones instruccion
 	|
 	;
+
 instruccion
 	: ALLAVE_ listaInstrucciones CLLAVE_
 	| instruccionAsignacion
@@ -101,6 +112,7 @@ instruccion
 	| instruccionEntradaSalida
 	| instruccionIteracion
 	;
+
 instruccionAsignacion
 	: ID_ IGUAL_ expresion PCOMA_ 
 		{SIMB sim = obtTDS($1);
@@ -121,6 +133,7 @@ instruccionAsignacion
 				yyerror("Error de tipos en la instrucción de asignación de la array");
 		}
 	;
+
 instruccionEntradaSalida
 	: READ_ APAR_ ID_ CPAR_ PCOMA_
 	{
@@ -137,6 +150,7 @@ instruccionEntradaSalida
 		} 
 	}
 	;
+
 instruccionSeleccion
 	: IF_ APAR_ expresion CPAR_ instruccion ELSE_ instruccion
 	{
@@ -145,12 +159,14 @@ instruccionSeleccion
 		}
 	}
 	;
+
 instruccionIteracion
 	: FOR_ APAR_ expresionOpcional PCOMA_ expresion PCOMA_ expresionOpcional CPAR_ instruccion
 		{
 			if ($5 != T_LOGICO) yyerror("Expresión de evaluación inválida");
 		}
 	;
+
 expresionOpcional 
 	: expresion {$$ = $1;}
 	| ID_ IGUAL_ expresion 
@@ -162,6 +178,7 @@ expresionOpcional
 		}
 	|
 	;
+
 expresion 
 	: expresionIgualdad
 	| expresion operadorLogico expresionIgualdad
@@ -173,6 +190,7 @@ expresion
 		}
 	}
 	;
+
 expresionIgualdad 
 	: expresionRelacional {$$ = $1;}
 	| expresionIgualdad operadorIgualdad expresionRelacional
@@ -181,6 +199,7 @@ expresionIgualdad
 			else $$=$1;
 		}
 	;
+
 expresionRelacional 
 	: expresionAditiva {$$ = $1;}
 	| expresionRelacional operadorRelacional expresionAditiva
@@ -189,6 +208,7 @@ expresionRelacional
 			else $$=T_ENTERO;
 		}
 	;
+
 expresionAditiva 
 	: expresionMultiplicativa
 	| expresionAditiva operadorAditivo expresionMultiplicativa
@@ -200,6 +220,7 @@ expresionAditiva
 		}
 	}
 	;
+
 expresionMultiplicativa 
 	: expresionUnaria {$$ = $1;}
 	| expresionMultiplicativa operadorMultiplicativo expresionUnaria
@@ -208,6 +229,7 @@ expresionMultiplicativa
 			else $$=T_ENTERO;
 		}
 	;
+
 expresionUnario 
 	: expresionSufija {$$ = $1;}
 	| operadorUnario expresionUnaria
@@ -233,6 +255,7 @@ expresionUnario
 		}
 	}
 	;
+
 expresionSufija
 	: APAR_ expresion CPAR_ {$$ = $2;}
 	| ID_ operadorIncremento
@@ -261,51 +284,62 @@ expresionSufija
 		}
 	| constante {$$ = $1;}
 	;
+
 parametrosActuales
 	: listaParametrosActuales
 	|
 	;
+
 listaParametrosActuales
 	: expresion
 	| expresion COMA_ listaParametrosActuales
 	;
+
 constante
 	: CTE_   {$$ = T_ENTERO;}
 	| TRUE_  {$$ = T_LOGICO;}
 	| FALSE_ {$$ = T_LOGICO;}
 	;
+
 operadorLogico
 	: AND_
 	| OR_
 	;
+
 operadorIgualdad
 	: DIGUAL_
 	| DIF_
 	;
+
 operadorRelacional
 	: MAY_
 	| MEN_ 
 	| MAYIG_
 	| MENIG_
 	;
+
 operadorAditivo
 	: MAS_
 	| MENOS_
 	;
+
 operadorMultiplicativo
 	: POR_
 	| DIV_
 	;
+
 operadorUnario 
 	: MAS_ 
 	| MENOS_ 
 	| NEG_ 
 	;
+
 operadorIncremento
 	: DMAS_ 
 	| DMENOS_
 	;
 %%
+
 /*****************************************************************************/
 int verbosidad = FALSE;                  /* Flag si se desea una traza       */
 
