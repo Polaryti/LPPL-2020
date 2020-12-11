@@ -31,13 +31,13 @@ programa
     ;
 
 listaDeclaraciones    
-	: declaracion
-	|listaDeclaraciones declaracion
+	: declaracion { $$ = $1; }
+	|listaDeclaraciones declaracion { $$ = $1 + $2; }
     ;
 
 declaracion   
-	: declaracionVariable
-	| declaracionFuncion
+	: declaracionVariable { $$ = 0; }
+	| declaracionFuncion { $$ = $1; }
     ;
 
 declaracionVariable    
@@ -50,16 +50,16 @@ declaracionVariable
 	}
     | tipoSimple ID_ ACLAU_ CTE_ CCLAU_ PCOMA_
 	{ 
-		int numelem = $4; int ref;
-        if (numelem <= 0) {
+        if ($4 < 0) {
             yyerror("El tamaño del array no es valido");
-            numelem = 0;
-        }
-        ref = insertaTDArray($1, numelem);
-        if (!insertarTDS($2, T_ARRAY, dvar, ref))
-            yyerror("Ya existe una variable con el mismo nombre");
-        else
-            dvar += numelem * TALLA_TIPO_SIMPLE; 
+        } else {
+			int ref = insertaTdA($1, $4);
+			if (!insertarTDS($2, T_ARRAY, niv, dvar, ref))
+				yyerror("Ya existe una variable con el mismo nombre");
+			else
+				dvar += $4 * TALLA_TIPO_SIMPLE; 
+		}
+        
 	}
     ;
 

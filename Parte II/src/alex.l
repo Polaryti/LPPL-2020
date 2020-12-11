@@ -12,12 +12,6 @@
 %option nounput
 %option yylineno
 
-/*Revisar*/
-%union {
-    char *ident; /* Nombre del identificador */
-    int cent; /* Valor de la cte numérica entera */
-}
-
 delimitador [ \t\n]+
 minus		[a-z]
 mayus		[A-Z]
