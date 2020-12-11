@@ -299,7 +299,17 @@ expresionSufija
 		}
 	| ID_ APAR_ parametrosActuales CPAR_
 		{
-
+			SIMB sim = obtTdS($1);
+			if (sim.t == T_ERROR){ 
+				yyerror("La variable no existe"); 
+			}
+			INF inf = obtTdD(sim.ref);
+			if (inf.tipo == T_ERROR) { 
+				yyerror("Funcion no definida"); 
+			}                                        
+			else {
+				$$ = inf.tipo;
+			}
 		}
 	| ID_ 
 		{
