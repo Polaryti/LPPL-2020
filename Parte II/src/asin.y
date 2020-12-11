@@ -17,7 +17,7 @@
 %token <cent>  CTE_ BOOL_ INT_
 %token <ident> ID_
 %type  <cent>  tipoSimple
-%type  <lista> listaParametrosFormales
+%type  <lista> listaParametrosFormales parametrosFormales listaparametrosActuales parametrosActuales
 %type  <cent>  operadorUnario
 %type  <cent>  expresionOpcional expresion expresionIgualdad expresionRelacional 
 %type  <cent>  expresionAditiva expresionMultiplicativa expresionUnitaria expresionSufija
@@ -25,7 +25,9 @@
 
 %%
 programa 
-	: listaDeclaraciones
+	: { dvar=0; }
+	listaDeclaraciones 
+	{ if(verTdS) mostrarTdS(); }
     ;
 
 listaDeclaraciones    
@@ -82,14 +84,33 @@ cabeceraFuncion
 parametrosFormales
 	: listaParametrosFormales
 		{
-			$$ = $1;
+			$$.ref = $1.ref;
+			$$.talla = $1.talla;
 		}
-	| {$$ = insTdD(-1,T_VACIO);}
+	| {
+		$$.ref = insTdD(-1, T_VACIO);
+		$$.talla = TALLA_TIPO_SIMPLE;
+	  }
 	;
 
 listaParametrosFormales
 	: tipoSimple ID_
+	{
+			$$.ref = insTdD(-1, $1);
+			$$.talla = TALLA_TIPO_SIMPLE;
+	}
 	| tipoSimple ID_ COMA_ listaParametrosFormales
+	{
+		INF inf = obtTdD($4) 
+		if(inf.tipo == T_ERROR){
+			yyerror("Error en los parámetros formales");
+		}
+		else{
+			$$.ref = $4.ref;
+			$$.talla = $4.talla + TALLA_TIPO_SIMPLE;
+		}
+
+	}
 	;
 
 bloque
@@ -277,6 +298,9 @@ expresionSufija
 		 };
 		}
 	| ID_ APAR_ parametrosActuales CPAR_
+		{
+
+		}
 	| ID_ 
 		{SIMB sim = obtTDS($1);
 		
@@ -293,7 +317,22 @@ parametrosActuales
 
 listaParametrosActuales
 	: expresion
+		{
+				$$.ref = insTdD(-1, $1);
+				$$.talla = TALLA_TIPO_SIMPLE;
+		}
 	| expresion COMA_ listaParametrosActuales
+		{
+			INF inf = obtTdD($3) 
+			if(inf.tipo == T_ERROR){
+				yyerror("Error en los parámetros actuales");
+			}
+			else{
+				$$.ref = $3.ref;
+				$$.talla = $3.talla + TALLA_TIPO_SIMPLE;
+			}
+
+		}
 	;
 
 constante
