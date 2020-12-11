@@ -25,7 +25,7 @@
 
 %%
 programa 
-	: { dvar=0; }
+	: { dvar=0; niv = 0; cargarContexto(niv); }
 	listaDeclaraciones 
 	{ if(verTdS) mostrarTdS(); }
     ;
@@ -325,6 +325,7 @@ parametrosActuales
 	: listaParametrosActuales
 	|
 	;
+
 
 listaParametrosActuales
 	: expresion
