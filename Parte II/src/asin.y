@@ -7,6 +7,7 @@
 %union{
 	int cent;
 	char *ident;
+	Lista lista;
 }
 %token MAS_ DMAS_ MENOS_ DMENOS_ POR_ DIV_ IGUAL_ 
 %token TRUE_ FALSE_ MAY_ MEN_ MAYIG_ MENIG_ DIGUAL_ DIF_ NEG_ AND_ OR_
@@ -16,11 +17,10 @@
 %token <cent>  CTE_ BOOL_ INT_
 %token <ident> ID_
 %type  <cent>  tipoSimple
-%type  <cent>  operadorLogico operadorIgualdad operadorRelacional operadorAditivo
-%type  <cent>  operadorMultiplicativo operadorUnitario operadorIncremento
-%type  <cent> expresionOpcional expresion expresionIgualdad expresionRelacional 
-%type  <cent> expresionAditiva expresionMultiplicativa expresionUnitaria expresionSufija
-%type  <cent> constante
+%type  <cent>  operadorUnario
+%type  <cent>  expresionOpcional expresion expresionIgualdad expresionRelacional 
+%type  <cent>  expresionAditiva expresionMultiplicativa expresionUnitaria expresionSufija
+%type  <cent>  constante
 
 %%
 programa 
@@ -329,18 +329,9 @@ operadorMultiplicativo
 	;
 
 operadorUnario 
-	: MAS_
-	{
-		$$ = T_ENTERO;
-	} 
-	| MENOS_ 
-	{
-		$$ = T_ENTERO;
-	}
-	| NEG_
-	{
-		$$ = T_LOGICO;
-	}
+	: MAS_	{ $$ = T_ENTERO; } 
+	| MENOS_ { $$ = T_ENTERO; }
+	| NEG_ { $$ = T_LOGICO; }
 	;
 
 operadorIncremento

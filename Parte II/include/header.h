@@ -12,6 +12,10 @@
 #define TALLA_TIPO_SIMPLE 1     /* Talla asociada a los tipos simples */
 #define TALLA_SEGENLACES 2      /* Talla del segmento de Enlaces de Control */
 
+typedef struct lista{
+    int ref;
+    int talla;
+} Lista;
 
 /************************************* Variables externas definidas en el AL */
 extern int yylex();
