@@ -163,7 +163,7 @@ instruccionAsignacion
 				if (sim.t == T_ERROR) {
 					yyerror("Objeto no declarado");
 				} else if (! ((sim.t == $3.t && sim.t == T_ENTERO) || (sim.t == $3.t && sim.t == T_LOGICO))) {
-					yyerror("Error de ts en la instrucción de asignación");
+					yyerror("Error de tipos en la instrucción de asignación");
 				}
 			}
 		}
@@ -195,11 +195,11 @@ instruccionEntradaSalida
 	: READ_ APAR_ ID_ CPAR_ PCOMA_
 		{
 			SIMB sim = obtTdS($3);
-			if (sim.t != T_ENTERO) yyerror("El valor debe de ser de tipo entero");
+			if (sim.t != T_ENTERO) yyerror("El argumento de la función "read" debe ser de tipo entero.");
 		}
 	| PRINT_ APAR_ expresion CPAR_ PCOMA_
 		{
-			if ($3.t != T_ERROR && $3.t != T_ENTERO) yyerror("El valor debe de ser de tipo entero");
+			if ($3.t != T_ERROR && $3.t != T_ENTERO) yyerror("El argumento de la función "print" debe ser de tipo entero.");
 		}
 	;
 
@@ -207,7 +207,7 @@ instruccionSeleccion
 	: IF_ APAR_ expresion CPAR_ instruccion ELSE_ instruccion
 		{
 			if ($3.t != T_ERROR)
-				if ($3.t != T_LOGICO) yyerror("La expresion no es valida");
+				if ($3.t != T_LOGICO) yyerror("La expresión de evaluación del "if" debe ser de tipo lógico.");
 		}
 	;
 
@@ -215,7 +215,7 @@ instruccionIteracion
 	: FOR_ APAR_ expresionOpcional PCOMA_ expresion PCOMA_ expresionOpcional 
 			{
 				if ($5.t != T_ERROR)
-					if ($5.t != T_LOGICO) yyerror("Expresión de evaluación inválida");
+					if ($5.t != T_LOGICO) yyerror("La expresión de evaluación del "for" debe ser de tipo lógico.");
 			}
 	  CPAR_ instruccion
 	;
@@ -231,7 +231,7 @@ expresionOpcional
                 if (sim.t == $3.t) {
                     $$.t = sim.t;
                 } else {
-                    yyerror("Erro en el tipo de la expresion");
+                    yyerror("Erro en el tipo de la expresión.");
                 }
             }
 		}
@@ -245,7 +245,7 @@ expresion
 			$$.t = T_ERROR;
 			if ($1.t != T_ERROR || $3.t != T_ERROR) {
 				if (!($1.t == $3.t && $1.t == T_LOGICO)) {
-					yyerror("Tipo de expresión no válido");
+					yyerror("Error en el tipo de la expresion. ");
 				} else {
 					$$.t = T_LOGICO;
 				}
@@ -261,9 +261,9 @@ expresionIgualdad
 			
             if ($1.t != T_ERROR && $3.t != T_ERROR) {
                 if ($1.t != $3.t) {
-                    yyerror("Error en el tipo de la expresion");
+                    yyerror("Error en el tipo de la expresion igualdad. ");
                 } else if ($3.t != T_LOGICO || $3.t != T_ENTERO) { 
-                    yyerror("No se puede aplicar el operador de igualdad");
+                    yyerror("No se puede aplicar el operador de igualdad. ");
                 }  else {
                     $$.t = T_LOGICO;
                 }
@@ -278,7 +278,7 @@ expresionRelacional
             $$.t = T_ERROR;
 			if ($1.t != T_ERROR && $3.t != T_ERROR){
 				if (!($1.t == $3.t && $1.t == T_ENTERO)) {
-					yyerror("tTipo de la expresión no válido");
+					yyerror("Error en el tipo de la expresion relacional. ");
 				} else {
 					$$.t = T_LOGICO;
 				}
@@ -293,7 +293,7 @@ expresionAditiva
         $$.t = T_ERROR;
 		if ($1.t != T_ERROR && $3.t != T_ERROR) {
 			if (!($1.t == $3.t && $1.t == T_ENTERO)) {
-				yyerror("t de expresión no válido");
+				yyerror("Error en el tipo de la expresion aditiva. ");
 			} else {
 				$$.t = T_ENTERO;
 			}
@@ -308,7 +308,7 @@ expresionMultiplicativa
             $$.t = T_ERROR;
 			if ($1.t != T_ERROR && $3.t != T_ERROR) {
 				if (!($1.t == $3.t && $1.t == T_ENTERO)) {
-					yyerror("t de expresión no válida");
+					yyerror("Error en el tipo de la expresion multiplicativa. ");
 				} else {
 					$$.t = T_ENTERO;
 				} 
@@ -335,7 +335,7 @@ expresionUnaria
 					$$.t = T_LOGICO;
 				}
             } else {
-				yyerror("No es valido el t");
+				yyerror("Error en el tipo de la expresion unaria. ");
 			}                                                               
         } 
     }
@@ -370,7 +370,7 @@ expresionSufija
 			} else if (sim.t == T_ENTERO) {
 				$$.t = sim.t;
 			} else {
-				yyerror("t de la variable inadecuado");
+				yyerror("Error en el tipo de la expresion sufija. ");
 			}
 		}
 	| ID_ ACLAU_ expresion CCLAU_
