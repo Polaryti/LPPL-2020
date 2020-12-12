@@ -54,7 +54,7 @@ declaracionVariable
 	}
     | tSimple ID_ ACLAU_ CTE_ CCLAU_ PCOMA_
 	{ 
-        if ($4 < 0) {
+        if ($4 <= 0) {
             yyerror("El tamaño del array no es valido");
         } else {
 			int ref = insTdA($1, $4);
@@ -131,7 +131,8 @@ bloque
 	: ALLAVE_ declaracionVariableLocal listaInstrucciones RETURN_ expresion PCOMA_ CLLAVE_
 		{ 
 			INF inf = obtTdD(-1);
-			if((inf.t == T_ERROR)  || (inf.t != $5.t))  yyerror("Error con los tipos");        
+			if(inf.t != T_ERROR)
+				if (inf.t != $5.t)  yyerror("Error con los tipos");        
 			
 		}
 	;
@@ -158,12 +159,13 @@ instruccionAsignacion
 	: ID_ IGUAL_ expresion PCOMA_ 
 		{
             SIMB sim = obtTdS($1);
-		
-            if (sim.t == T_ERROR) {
-                yyerror("Objeto no declarado");
-            } else if (! ((sim.t == $3.t && sim.t == T_ENTERO) || (sim.t == $3.t && sim.t == T_LOGICO))) {
-                yyerror("Error de ts en la instrucción de asignación");
-            }
+			if($3.t != T_ERROR){   
+				if (sim.t == T_ERROR) {
+					yyerror("Objeto no declarado");
+				} else if (! ((sim.t == $3.t && sim.t == T_ENTERO) || (sim.t == $3.t && sim.t == T_LOGICO))) {
+					yyerror("Error de ts en la instrucción de asignación");
+				}
+			}
 		}
 
 	| ID_ ACLAU_ expresion CCLAU_ IGUAL_ expresion PCOMA_
@@ -179,8 +181,6 @@ instruccionAsignacion
 			if($3.t != T_ERROR && $6.t != T_ERROR){                    
                 if (sim.t == T_ERROR) {
                     yyerror("Error en la vairable");
-                } else if (! (sim.t == T_ARRAY)) {
-                    yyerror("Error en el tipo de la expresion");
                 } else if (! ($3.t == T_ENTERO)) {
                     yyerror("El numero de elemento del array no es un entero");
                 } else if (! ($6.t == dim.telem)) { 
@@ -195,26 +195,29 @@ instruccionEntradaSalida
 	: READ_ APAR_ ID_ CPAR_ PCOMA_
 		{
 			SIMB sim = obtTdS($3);
-			if (sim.t == T_ERROR) yyerror("Variable no declarada");
+			if (sim.t != T_ENTERO) yyerror("El valor debe de ser de tipo entero");
 		}
 	| PRINT_ APAR_ expresion CPAR_ PCOMA_
 		{
-			if ($3.t == T_ERROR) yyerror("Expresion no valida");
+			if ($3.t != T_ERROR && $3.t != T_ENTERO) yyerror("El valor debe de ser de tipo entero");
 		}
 	;
 
 instruccionSeleccion
 	: IF_ APAR_ expresion CPAR_ instruccion ELSE_ instruccion
 		{
-			if ($3.t != T_LOGICO) yyerror("La expresion no es valida");
+			if ($3.t != T_ERROR)
+				if ($3.t != T_LOGICO) yyerror("La expresion no es valida");
 		}
 	;
 
 instruccionIteracion
-	: FOR_ APAR_ expresionOpcional PCOMA_ expresion PCOMA_ expresionOpcional CPAR_ instruccion
-		{
-			if ($5.t != T_LOGICO) yyerror("Expresión de evaluación inválida");
-		}
+	: FOR_ APAR_ expresionOpcional PCOMA_ expresion PCOMA_ expresionOpcional 
+			{
+				if ($5.t != T_ERROR)
+					if ($5.t != T_LOGICO) yyerror("Expresión de evaluación inválida");
+			}
+	  CPAR_ instruccion
 	;
 
 expresionOpcional 
@@ -240,11 +243,12 @@ expresion
 	| expresion operadorLogico expresionIgualdad
 		{
 			$$.t = T_ERROR;
-			if ($1.t == T_ERROR || $3.t == T_ERROR) yyerror("Error en los tipos de la expresión.");
-			if (!($1.t == $3.t && $1.t == T_LOGICO)) {
-				yyerror("Tipo de expresión no válido");
-			} else {
-				$$.t = T_LOGICO;
+			if ($1.t != T_ERROR || $3.t != T_ERROR) {
+				if (!($1.t == $3.t && $1.t == T_LOGICO)) {
+					yyerror("Tipo de expresión no válido");
+				} else {
+					$$.t = T_LOGICO;
+				}
 			}
 		}
 	;
@@ -272,10 +276,12 @@ expresionRelacional
 	| expresionRelacional operadorRelacional expresionAditiva
 		{
             $$.t = T_ERROR;
-			if (!($1.t == $3.t && $1.t == T_ENTERO)) {
-				yyerror("t de expresión no válido");
-			} else {
-				$$.t = T_ENTERO;
+			if ($1.t != T_ERROR && $3.t != T_ERROR){
+				if (!($1.t == $3.t && $1.t == T_ENTERO)) {
+					yyerror("tTipo de la expresión no válido");
+				} else {
+					$$.t = T_LOGICO;
+				}
 			}
 		}
 	;
@@ -285,10 +291,12 @@ expresionAditiva
 	| expresionAditiva operadorAditivo expresionMultiplicativa
 	{
         $$.t = T_ERROR;
-		if (!($1.t == $3.t && $1.t == T_ENTERO)) {
-			yyerror("t de expresión no válido");
-		} else {
-			$$.t = T_ENTERO;
+		if ($1.t != T_ERROR && $3.t != T_ERROR) {
+			if (!($1.t == $3.t && $1.t == T_ENTERO)) {
+				yyerror("t de expresión no válido");
+			} else {
+				$$.t = T_ENTERO;
+			}
 		}
 	}
 	;
@@ -298,11 +306,13 @@ expresionMultiplicativa
 	| expresionMultiplicativa operadorMultiplicativo expresionUnaria
 		{
             $$.t = T_ERROR;
-			if (!($1.t == $3.t && $1.t == T_ENTERO)) {
-				yyerror("t de expresión no válida");
-			} else {
-				$$.t = T_ENTERO;
-			} 
+			if ($1.t != T_ERROR && $3.t != T_ERROR) {
+				if (!($1.t == $3.t && $1.t == T_ENTERO)) {
+					yyerror("t de expresión no válida");
+				} else {
+					$$.t = T_ENTERO;
+				} 
+			}
 		}
 	;
 
