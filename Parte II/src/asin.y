@@ -234,45 +234,63 @@ expresionIgualdad
 	;
 
 expresionRelacional 
-	: expresionAditiva {$$ = $1;}
+	: expresionAditiva {$$.t = $1.t;}
 	| expresionRelacional operadorRelacional expresionAditiva
 		{
-			if (!($1==$3==T_ENTERO)) yyerror("Tipo de expresión no válido");
-			else $$=T_ENTERO;
+			if (!($1.t == $3.t == T_ENTERO)) {
+				yyerror("Tipo de expresión no válido");
+			} else {
+				$$.t = T_ENTERO;
+			}
 		}
 	;
 
 expresionAditiva 
-	: expresionMultiplicativa
+	: expresionMultiplicativa { $$.t = $1.t; }
 	| expresionAditiva operadorAditivo expresionMultiplicativa
 	{
-		if (!($1 == $3 == T_ENTERO)) {
+		if (!($1.t == $3.t == T_ENTERO)) {
 			yyerror("Tipo de expresión no válido");
 		} else {
-			$$=T_ENTERO;
+			$$.t = T_ENTERO;
 		}
 	}
 	;
 
 expresionMultiplicativa 
-	: expresionUnaria {$$ = $1;}
+	: expresionUnaria {$$.t = $1.t;}
 	| expresionMultiplicativa operadorMultiplicativo expresionUnaria
 		{
-			if (!($1==$3==T_ENTERO)) yyerror("Tipo de expresión no válido");
-			else $$=T_ENTERO;
+			if (!($1.t == $3.t == T_ENTERO)) {
+				yyerror("Tipo de expresión no válida");
+			} else {
+				$$.t = T_ENTERO;
+			} 
 		}
 	;
 
 expresionUnario 
-	: expresionSufija {$$ = $1;}
+	: expresionSufija {$$.t = $1.t;}
 	| operadorUnario expresionUnaria
-	{
-		if ($2 == T_ERROR) {
-			yyerror("Expresion no valida");
-		} else if ($2 != T_ENTERO || $2 != T_LOGICO) {
-			yyerror("Tipo de la expresion no valido");
-		}
-	}
+	{  
+        if ($2.t != T_ERROR) {
+            if ($2.t == T_ENTERO) {                                                                         
+                if ($1.t == OP_NOT) {
+					yyerror("No se puede negar un número");
+				} else { 
+					$$.t = T_ENTERO; 
+				}
+            } else if ($2.t == T_LOGICO) {                                                                  
+                if ($1 == OP_SUMA || $1 == OP_RESTA) {
+					yyerror("Operación no valida para un booleano");
+				} else { 
+					$$.t = T_LOGICO;
+				}
+            } else {
+				yyerror(ERROR_DE_TIPO);
+			}                                                               
+        } 
+    }
 	| operadorIncremento ID_
 	{
 		SIMB sim = obtTDS($2);
@@ -284,52 +302,63 @@ expresionUnario
 			yyerror("El operador incremento solo se puede aplicar a variables enteras");
 		}
 		else {
-			$$ = sim.t;
+			$$.t = sim.t;
 		}
 	}
 	;
 
 expresionSufija
-	: APAR_ expresion CPAR_ {$$ = $2;}
+	: APAR_ expresion CPAR_ {$$.t = $2.t;}
 	| ID_ operadorIncremento
-		{SIMB sim = obtTDS($1);
+		{
+			SIMB sim = obtTDS($1);
 		
-		 if (sim.t == T_ERROR) yyerror("Objeto no declarado");
-		 else if (sim.t == T_ENTERO) $$ = sim.t;
-		 else yyerror("Tipo de la variable inadecuado");
+			if (sim.t == T_ERROR) {
+				yyerror("Objeto no declarado");
+			} else if (sim.t == T_ENTERO) {
+				$$ = sim.t;
+			} else {
+				yyerror("Tipo de la variable inadecuado");
+			}
 		}
 	| ID_ ACLAU_ expresion CCLAU_
-		{SIMB sim = obtTDS($1);
+		{
+			SIMB sim = obtTDS($1);
 		
-		 if (sim.t == T_ERROR) yyerror("Objeto no declarado");
-		 else if (expresion != T_ENTERO) yyerror("Indicador de posición no válido");
-		 else { 
-		 	DIM dim = obtTDA(sim.ref);
-			$$ = dim.telem;
-		 };
+			if (sim.t == T_ERROR) {
+				yyerror("Objeto no declarado");
+			} else if (expresion != T_ENTERO) {
+				yyerror("Indicador de posición no válido");
+			} else { 
+				DIM dim = obtTDA(sim.ref);
+				$$ = dim.telem;
+			}
 		}
 	| ID_ APAR_ parametrosActuales CPAR_
 		{
 			SIMB sim = obtTdS($1);
-			if (sim.t == T_ERROR){ 
+
+			if (sim.t == T_ERROR) { 
 				yyerror("La variable no existe"); 
 			}
 			INF inf = obtTdD(sim.ref);
-			if (inf.tipo == T_ERROR) { 
+			if (inf.t == T_ERROR) { 
 				yyerror("Funcion no definida"); 
-			}                                        
-			else {
-				$$ = inf.tipo;
+			} else {
+				$$.t = inf.t;
 			}
 		}
 	| ID_ 
 		{
 			SIMB sim = obtTDS($1);
 
-		 	if (sim.t == T_ERROR) yyerror("Objeto no declarado");
-		 	else $$ = sim.t;
+		 	if (sim.t == T_ERROR) {
+				 yyerror("Objeto no declarado");
+			 } else { 
+				 $$.t = sim.t;
+			 }
 		}
-	| constante {$$ = $1;}
+	| constante {$$.t = $1.t;}
 	;
 
 parametrosActuales
@@ -340,22 +369,22 @@ parametrosActuales
 
 listaParametrosActuales
 	: expresion
-		{
-				$$.ref = insTdD(-1, $1);
-				$$.talla = TALLA_TIPO_SIMPLE;
-		}
+		// {
+		// 		$$.ref = insTdD(-1, $1);
+		// 		$$.talla = TALLA_TIPO_SIMPLE;
+		// }
 	| expresion COMA_ listaParametrosActuales
-		{
-			INF inf = obtTdD($3) 
-			if(inf.tipo == T_ERROR){
-				yyerror("Error en los parámetros actuales");
-			}
-			else{
-				$$.ref = $3.ref;
-				$$.talla = $3.talla + TALLA_TIPO_SIMPLE;
-			}
+		// {
+		// 	INF inf = obtTdD($3) 
+		// 	if(inf.tipo == T_ERROR){
+		// 		yyerror("Error en los parámetros actuales");
+		// 	}
+		// 	else{
+		// 		$$.ref = $3.ref;
+		// 		$$.talla = $3.talla + TALLA_TIPO_SIMPLE;
+		// 	}
 
-		}
+		// }
 	;
 
 constante
@@ -365,41 +394,41 @@ constante
 	;
 
 operadorLogico
-	: AND_
-	| OR_
+	: AND_		{$$ = OP_AND;}
+	| OR_		{$$ = OP_OR;}
 	;
 
 operadorIgualdad
-	: DIGUAL_
-	| DIF_
+	: DIGUAL_	{$$ = OP_IGUAL;}
+	| DIF_		{$$ = OP_NOTIGUAL;}
 	;
 
 operadorRelacional
-	: MAY_
-	| MEN_ 
-	| MAYIG_
-	| MENIG_
+	: MAY_		{$$ = OP_MAYOR;}
+	| MEN_ 		{$$ = OP_MENOR;}
+	| MAYIG_	{$$ = OP_MAYORIG;}
+	| MENIG_	{$$ = OP_MENORIG;}
 	;
 
 operadorAditivo
-	: MAS_
-	| MENOS_
+	: MAS_		{$$ = OP_SUMA;}
+	| MENOS_	{$$ = OP_RESTA;}
 	;
 
 operadorMultiplicativo
-	: POR_
-	| DIV_
+	: POR_		{$$ = OP_MULT;}
+	| DIV_		{$$ = OP_DIV;}
 	;
 
 operadorUnario 
-	: MAS_	{ $$ = T_ENTERO; } 
-	| MENOS_ { $$ = T_ENTERO; }
-	| NEG_ { $$ = T_LOGICO; }
+	: MAS_		{$$ = OP_SUMA;} 
+	| MENOS_ 	{$$ = OP_RESTA;}
+	| NEG_ 		{$$ = OP_NOT;}
 	;
 
 operadorIncremento
-	: DMAS_ 
-	| DMENOS_
+	: DMAS_ 	{$$ = OP_INCR;}
+	| DMENOS_	{$$ = OP_DECR;}
 	;
 %%
 
