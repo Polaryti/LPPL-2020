@@ -131,7 +131,7 @@ bloque
 	: ALLAVE_ declaracionVariableLocal listaInstrucciones RETURN_ expresion PCOMA_ CLLAVE_
 		{ 
 			INF inf = obtTdD(-1);
-			if((inf.t != T_ERROR)  || (inf.t != $5.t))  yyerror("Error con los ts");        
+			if((inf.t == T_ERROR)  || (inf.t != $5.t))  yyerror("Error con los tipos");        
 			
 		}
 	;
