@@ -30,7 +30,7 @@
 %%
 programa 
 	: { dvar=0; niv = 0; cargaContexto(niv); }
-	listaDeclaraciones 
+	listaDeclaraciones { if($2 != -1); yyerror("No hay main");} 
 	{ if(verTdS) mostrarTdS(); }
     ;
 
@@ -426,22 +426,7 @@ parametrosActuales
 
 listaParametrosActuales
 	: expresion
-		// {
-		// 		$$.ref = insTdD(-1, $1);
-		// 		$$.talla = TALLA_TIPO_SIMPLE;
-		// }
 	| expresion COMA_ listaParametrosActuales
-		// {
-		// 	INF inf = obtTdD($3) 
-		// 	if(inf.t == T_ERROR){
-		// 		yyerror("Error en los parámetros actuales");
-		// 	}
-		// 	else{
-		// 		$$.ref = $3.ref;
-		// 		$$.talla = $3.talla + TALLA_TIPO_SIMPLE;
-		// 	}
-
-		// }
 	;
 
 constante
