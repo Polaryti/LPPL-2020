@@ -212,7 +212,7 @@ instruccionSeleccion
 	: IF_ APAR_ expresion CPAR_ instruccion ELSE_ instruccion
 		{
 			if ($3.t != T_ERROR)
-				if ($3.t != T_LOGICO) yyerror("La expresion de evaluacion del "if" debe ser de tipo logico.");
+				if ($3.t != T_LOGICO) yyerror("La expresion de evaluacion del \"if\" debe ser de tipo logico.");
 		}
 	;
 
@@ -220,7 +220,7 @@ instruccionIteracion
 	: FOR_ APAR_ expresionOpcional PCOMA_ expresion PCOMA_ expresionOpcional 
 			{
 				if ($5.t != T_ERROR)
-					if ($5.t != T_LOGICO) yyerror("La expresion de evaluacion del "for" debe ser de tipo logico.");
+					if ($5.t != T_LOGICO) yyerror("La expresion de evaluacion del \"for\" debe ser de tipo logico.");
 			}
 	  CPAR_ instruccion
 	;
@@ -335,7 +335,7 @@ expresionUnaria
 				}
             } else if ($2.t == T_LOGICO) {                                                                  
                 if ($1 == OP_SUMA || $1 == OP_RESTA) {
-					yyerror("Incompatibilidad de tipos, solo se puede aplicar el operador unario "+" o "-" a una expresion entera.");
+					yyerror("Incompatibilidad de tipos, solo se puede aplicar el operador unario \"+\" o \"-\" a una expresion entera.");
 				} else { 
 					$$.t = T_LOGICO;
 				}
@@ -354,7 +354,7 @@ expresionUnaria
 			yyerror("No existe ninguna variable con ese identificador.");
 		}
 		else if (sim.t != T_ENTERO) {
-			yyerror("Incompatibilidad de tipos, solo se puede aplicar el operador "++" o "--" a una expresion entera.");
+			yyerror("Incompatibilidad de tipos, solo se puede aplicar el operador \"++\" o \"--\" a una expresion entera.");
 		}
 		else {
 			$$.t = sim.t;
@@ -375,7 +375,7 @@ expresionSufija
 			} else if (sim.t == T_ENTERO) {
 				$$.t = sim.t;
 			} else {
-				yyerror("Incompatibilidad de tipos, solo se puede aplicar el operador "++" o "--" a una expresion entera.");
+				yyerror("Incompatibilidad de tipos, solo se puede aplicar el operador \"++\" o \"--\" a una expresion entera.");
 			}
 		}
 	| ID_ ACLAU_ expresion CCLAU_
