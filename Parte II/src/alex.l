@@ -17,7 +17,7 @@ minus		[a-z]
 mayus		[A-Z]
 letra		{mayus}|{minus}
 digito      [0-9]
-id		    {minus}({letra}|{digito}|"_")*
+id		    [a-zA-Z][_a-zA-Z0-9]*
 entero      {digito}+
 real1		{digito}*\.{digito}+
 real2       {digito}+\.{digito}*

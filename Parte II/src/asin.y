@@ -19,7 +19,7 @@
 %token <cent>  CTE_
 %token <ident> ID_
 %type  <lista> listaParametrosFormales parametrosFormales
-%type  <cent>  tSimple operadorIncremento operadorUnario operadorMultiplicativo
+%type  <cent>  tipoSimple operadorIncremento operadorUnario operadorMultiplicativo
 			   operadorAditivo operadorRelacional operadorIgualdad  operadorLogico 
 			   listaDeclaraciones declaracion declaracionFuncion cabeceraFuncion
 
@@ -45,14 +45,14 @@ declaracion
     ;
 
 declaracionVariable    
-	: tSimple ID_ PCOMA_ 
+	: tipoSimple ID_ PCOMA_ 
 	{ 
 		if (!insTdS($2, VARIABLE, $1, niv, dvar, -1))
             yyerror("Ya existe una variable con el mismo identificador.");
         else
             dvar += TALLA_TIPO_SIMPLE; 
 	}
-    | tSimple ID_ ACLAU_ CTE_ CCLAU_ PCOMA_
+    | tipoSimple ID_ ACLAU_ CTE_ CCLAU_ PCOMA_
 	{ 
         if ($4 <= 0) {
             yyerror("El indice de inicialización de los vectores tiene que ser un entero positivo.");
@@ -67,7 +67,7 @@ declaracionVariable
 	}
     ;
 
-tSimple
+tipoSimple
 	: INT_  { $$ = T_ENTERO; }
     | BOOL_ { $$ = T_LOGICO; }
 	;
@@ -86,7 +86,7 @@ declaracionFuncion
 	;
 
 cabeceraFuncion
-	: tSimple ID_ { niv=1; cargaContexto(niv); } APAR_ parametrosFormales CPAR_
+	: tipoSimple ID_ { niv = 1; cargaContexto(niv); } APAR_ parametrosFormales CPAR_
 		{
 			if (!insTdS($2, FUNCION, $1, 0, -1, $5.ref)) {
                 yyerror("Ya existe una función con el mismo nombre y el mismo numero y tipo de parametros.");
@@ -112,14 +112,14 @@ parametrosFormales
 	;
 
 listaParametrosFormales
-	: tSimple ID_
+	: tipoSimple ID_
 	{
 			$$.ref = insTdD(-1, $1);
 			$$.talla = TALLA_TIPO_SIMPLE + TALLA_SEGENLACES;
 			if(!insTdS($2, PARAMETRO, $1, niv, -$$.talla, -1)) yyerror("Ya existe un parametro con el mismo identificador.");
         
 	}
-	| tSimple ID_ COMA_ listaParametrosFormales
+	| tipoSimple ID_ COMA_ listaParametrosFormales
 	{
 		$$.ref = insTdD($4.ref, $1);
 		$$.talla = $4.talla + TALLA_TIPO_SIMPLE;
