@@ -334,7 +334,7 @@ expresionUnaria
 					$$.t = T_ENTERO; 
 				}
             } else if ($2.t == T_LOGICO) {                                                                  
-                if ($1 == OP_SUMA || $1 == OP_RESTA) {
+                if ($1 == ESUM || $1 == EDIF) {
 					yyerror("Incompatibilidad de tipos, solo se puede aplicar el operador unario \"+\" o \"-\" a una expresion entera.");
 				} else { 
 					$$.t = T_LOGICO;
@@ -461,30 +461,30 @@ operadorLogico
 	;
 
 operadorIgualdad
-	: DIGUAL_	{$$ = OP_IGUAL;}
-	| DIF_		{$$ = OP_NOTIGUAL;}
+	: DIGUAL_	{$$ = EIGUAL;}
+	| DIF_		{$$ = EDIST;}
 	;
 
 operadorRelacional
-	: MAY_		{$$ = OP_MAYOR;}
-	| MEN_ 		{$$ = OP_MENOR;}
-	| MAYIG_	{$$ = OP_MAYORIG;}
-	| MENIG_	{$$ = OP_MENORIG;}
+	: MAY_		{$$ = EMAY;}
+	| MEN_ 		{$$ = EMEN;}
+	| MAYIG_	{$$ = EMAYEQ;}
+	| MENIG_	{$$ = EMENEQ;}
 	;
 
 operadorAditivo
-	: MAS_		{$$ = OP_SUMA;}
-	| MENOS_	{$$ = OP_RESTA;}
+	: MAS_		{$$ = ESUM;}
+	| MENOS_	{$$ = EDIF;}
 	;
 
 operadorMultiplicativo
-	: POR_		{$$ = OP_MULT;}
-	| DIV_		{$$ = OP_DIV;}
+	: POR_		{$$ = EMULT;}
+	| DIV_		{$$ = EDIVI;}
 	;
 
 operadorUnario 
-	: MAS_		{$$ = OP_SUMA;} 
-	| MENOS_ 	{$$ = OP_RESTA;}
+	: MAS_		{$$ = ESUM;} 
+	| MENOS_ 	{$$ = EDIF;}
 	| NEG_ 		{$$ = OP_NOT;}
 	;
 
