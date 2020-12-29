@@ -303,6 +303,9 @@ expresionAditiva
 				$$.t = T_ENTERO;
 			}
 		}
+
+		//$$.pos = creaVarTemp();
+		//emite($2, crArgPos($1.pos), crArgPos($3.pos), crArgPos($$.pos));
 	}
 	;
 
