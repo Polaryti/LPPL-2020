@@ -13,21 +13,11 @@
 #define TALLA_SEGENLACES 2      /* Talla del segmento de Enlaces de Control */
 
 
-#define OP_NOT 0
-#define OP_SUMA 1
-#define OP_RESTA 2
-#define OP_MULT 3
-#define OP_DIV 4
-#define OP_INCR 5
-#define OP_DECR 6
-#define OP_MAYOR 7
-#define OP_MENOR 8
-#define OP_MAYORIG 9
-#define OP_MENORIG 10
-#define OP_IGUAL 11
-#define OP_NOTIGUAL 12
-#define OP_OR 13
-#define OP_AND 14
+#define OP_NOT 29
+#define OP_INCR 30
+#define OP_DECR 31
+#define OP_OR 32
+#define OP_AND 33
 
 typedef struct lista{
     int ref;
