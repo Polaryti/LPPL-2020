@@ -31,7 +31,6 @@
 programa 
 	: { dvar=0; niv = 0; cargaContexto(niv); }
 	listaDeclaraciones 
-	{ if(verTdS) mostrarTdS(); }
     ;
 
 listaDeclaraciones    
@@ -75,9 +74,6 @@ tipoSimple
 declaracionFuncion
 	: cabeceraFuncion { $<cent>$ = dvar; dvar = 0; } bloque
 		{
-			if (verTdS) {
-                mostrarTdS(); 
-            }
 			descargaContexto(niv); 
 			niv = 0; 
 			dvar = $<cent>2;
