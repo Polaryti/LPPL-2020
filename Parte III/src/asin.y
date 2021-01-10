@@ -195,12 +195,14 @@ instruccionEntradaSalida
 			if (sim.t != T_ENTERO) {
 				yyerror("El argumento de la funcion read() debe ser de tipo entero.");
 			}
+			emite(EREAD, crArgNul(), crArgNul(), crArgPos(sim.d));
 		}
 	| PRINT_ APAR_ expresion CPAR_ PCOMA_
 		{
 			if ($3.t != T_ERROR && $3.t != T_ENTERO) {
 				yyerror("El argumento de la funcion print() debe ser de tipo entero.");
 			}
+			emite(EWRITE, crArgNul(), crArgNul(), crArgPos($3.pos));
 		}
 	;
 
