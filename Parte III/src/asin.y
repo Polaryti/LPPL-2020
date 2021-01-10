@@ -288,7 +288,7 @@ expresionRelacional
 	;
 
 expresionAditiva 
-	: expresionMultiplicativa { $$.t = $1.t; }
+	: expresionMultiplicativa { $$.t = $1.t; $$.pos = $1.pos; }
 	| expresionAditiva operadorAditivo expresionMultiplicativa
 	{
         $$.t = T_ERROR;
@@ -299,11 +299,13 @@ expresionAditiva
 				$$.t = T_ENTERO;
 			}
 		}
+		$$.pos = creaVarTemp();
+		emite($2, crArgPos($1.pos),crArgPos($3.pos), crArgPos($$.pos));
 	}
 	;
 
 expresionMultiplicativa 
-	: expresionUnaria {$$.t = $1.t;}
+	: expresionUnaria {$$.t = $1.t; $$.pos = $1.pos; }
 	| expresionMultiplicativa operadorMultiplicativo expresionUnaria
 		{
             $$.t = T_ERROR;
@@ -314,11 +316,13 @@ expresionMultiplicativa
 					$$.t = T_ENTERO;
 				} 
 			}
+		$$.pos = creaVarTemp();
+		emite($2, crArgPos($1.pos),crArgPos($3.pos), crArgPos($$.pos));
 		}
 	;
 
 expresionUnaria 
-	: expresionSufija {$$.t = $1.t;}
+	: expresionSufija {$$.t = $1.t; $$.pos = $1.pos; }
 	| operadorUnario expresionUnaria
 	{  
         $$.t = T_ERROR;
@@ -355,11 +359,14 @@ expresionUnaria
 		else {
 			$$.t = sim.t;
 		}
+		$$.pos=creaVarTemp();
+		emite($1,crArgPos(sim.desp),crArgEnt(1),crArgPos($$.pos));
+		emite(EASIG,crArgPos($$.pos),crArgNul(),crArgPos(sim.desp));
 	}
 	;
 
 expresionSufija
-	: APAR_ expresion CPAR_ {$$.t = $2.t;}
+	: APAR_ expresion CPAR_ {$$.t = $2.t; $$.pos = $2.pos; }
 	| ID_ operadorIncremento
 		{
 			SIMB sim = obtTdS($1);
@@ -373,6 +380,9 @@ expresionSufija
 			} else {
 				yyerror("Incompatibilidad de tipos, solo se puede aplicar el operador \"++\" o \"--\" a una expresion entera.");
 			}
+			$$.pos=creaVarTemp();
+			emite(EASIG,crArgPos(sim.desp),crArgNul(),crArgPos($$.pos));
+			emite($2,crArgPos(sim.desp),crArgEnt(1),crArgPos(sim.desp));
 		}
 	| ID_ ACLAU_ expresion CCLAU_
 		{
@@ -388,6 +398,9 @@ expresionSufija
 				DIM dim = obtTdA(sim.ref);
 				$$.t = dim.telem;
 			}
+			emite(EMULT,crArgPos($3.pos),crArgEnt(TALLA_TIPO_SIMPLE),crArgPos($3.pos));
+			$$.pos=creaVarTemp();
+			emite(EAV,crArgPos(sim.desp),crArgPos($3.pos),crArgPos($$.pos));
 		}
 	| ID_ APAR_ parametrosActuales CPAR_
 		{
@@ -415,8 +428,12 @@ expresionSufija
 			 } else { 
 				 $$.t = sim.t;
 			 }
+			$$.pos=creaVarTemp();
+			emite(EASIG,crArgPos(sim.desp),crArgNul(),crArgPos($$.pos));
 		}
-	| constante {$$.t = $1.t;}
+	| constante {$$.t = $1.t;
+			$$.pos=creaVarTemp();
+			emite(EASIG,crArgPos($1.pos),crArgNul(),crArgPos($$.pos));}
 	;
 
 parametrosActuales
@@ -431,14 +448,20 @@ listaParametrosActuales
 	;
 
 constante
-	: CTE_   {$$.t = T_ENTERO;}
-	| TRUE_  {$$.t = T_LOGICO;}
-	| FALSE_ {$$.t = T_LOGICO;}
+	: CTE_   {$$.t = T_ENTERO;
+			$$.pos=creaVarTemp();
+			emite(EASIG,crArgEnt($1),crArgNul(),crArgPos($$.pos));}
+	| TRUE_  {$$.t = T_LOGICO;
+			$$.pos=creaVarTemp();
+			emite(EASIG,crArgEnt(TRUE),crArgNul(),crArgPos($$.pos));}
+	| FALSE_ {$$.t = T_LOGICO;
+			$$.pos=creaVarTemp();
+			emite(EASIG,crArgEnt(FALSE),crArgNul(),crArgPos($$.pos));}
 	;
 
 operadorLogico
-	: AND_		{$$ = OP_AND;}
-	| OR_		{$$ = OP_OR;}
+	: AND_		{$$ = EAND;}
+	| OR_		{$$ = EOR;}
 	;
 
 operadorIgualdad
@@ -466,11 +489,11 @@ operadorMultiplicativo
 operadorUnario 
 	: MAS_		{$$ = ESUM;} 
 	| MENOS_ 	{$$ = EDIF;}
-	| NEG_ 		{$$ = OP_NOT;}
+	| NEG_ 		{$$ = EDIST;}
 	;
 
 operadorIncremento
-	: DMAS_ 	{$$ = OP_INCR;}
-	| DMENOS_	{$$ = OP_DECR;}
+	: DMAS_ 	{$$ = $$=ESUM;}
+	| DMENOS_	{$$ = $$=EDIF;}
 	;
 %%
