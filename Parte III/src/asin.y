@@ -254,6 +254,10 @@ expresion
 					$$.t = T_LOGICO;
 				}
 			}
+			$$.pos=creaVarTemp();
+			if($2==EASIG) emite($2,crArgPos($3.pos),crArgNul(),crArgPos(sim.desp));
+			else emite($2,crArgPos(sim.desp),crArgPos($3.pos),crArgPos(sim.desp));
+			emite(EASIG,crArgPos(sim.desp),crArgNul(),crArgPos($$.pos));
 		}
 	;
 
@@ -272,6 +276,10 @@ expresionIgualdad
                     $$.t = T_LOGICO;
                 }
             } 
+			$$.pos=creaVarTemp();
+			emite(EASIG,crArgEnt(TRUE),crArgNul(),crArgPos($$.pos));
+			emite($2,crArgPos($1.pos),crArgPos($3.pos),crArgEtq(si+2));
+			emite(EASIG,crArgEnt(FALSE),crArgNul(),crArgPos($$.pos));
 		}
 	;
 
@@ -287,11 +295,15 @@ expresionRelacional
 					$$.t = T_LOGICO;
 				}
 			}
+			$$.pos=creaVarTemp();
+			emite(EASIG,crArgEnt(TRUE),crArgNul(),crArgPos($$.pos));
+			emite($2,crArgPos($1.pos),crArgPos($3.pos),crArgEtq(si+2));
+			emite(EASIG,crArgEnt(FALSE),crArgNul(),crArgPos($$.pos));
 		}
 	;
 
 expresionAditiva 
-	: expresionMultiplicativa { $$.t = $1.t; $$.pos = $1.pos; }
+	: expresionMultiplicativa { $$.t = $1.t;  }
 	| expresionAditiva operadorAditivo expresionMultiplicativa
 	{
         $$.t = T_ERROR;
@@ -308,7 +320,7 @@ expresionAditiva
 	;
 
 expresionMultiplicativa 
-	: expresionUnaria {$$.t = $1.t; $$.pos = $1.pos; }
+	: expresionUnaria {$$.t = $1.t; }
 	| expresionMultiplicativa operadorMultiplicativo expresionUnaria
 		{
             $$.t = T_ERROR;
