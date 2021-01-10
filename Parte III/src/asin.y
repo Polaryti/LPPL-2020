@@ -164,6 +164,7 @@ instruccionAsignacion
 					yyerror("Incompatibilidad de tipos, no son el mismo tipo o no son equivalentes.");
 				}
 			}
+			emite(EASIG, crArgPos($3.pos), crArgNul(), crArgPos(sim.d));
 		}
 
 	| ID_ ACLAU_ expresion CCLAU_ IGUAL_ expresion PCOMA_
