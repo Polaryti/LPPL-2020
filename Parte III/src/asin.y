@@ -253,6 +253,10 @@ expresion
 					$$.t = T_LOGICO;
 				}
 			}
+			$$.pos=creaVarTemp();
+			if($2==EASIG) emite($2,crArgPos($3.pos),crArgNul(),crArgPos(sim.desp));
+			else emite($2,crArgPos(sim.desp),crArgPos($3.pos),crArgPos(sim.desp));
+			emite(EASIG,crArgPos(sim.desp),crArgNul(),crArgPos($$.pos));
 		}
 	;
 
@@ -271,6 +275,10 @@ expresionIgualdad
                     $$.t = T_LOGICO;
                 }
             } 
+			$$.pos=creaVarTemp();
+			emite(EASIG,crArgEnt(TRUE),crArgNul(),crArgPos($$.pos));
+			emite($2,crArgPos($1.pos),crArgPos($3.pos),crArgEtq(si+2));
+			emite(EASIG,crArgEnt(FALSE),crArgNul(),crArgPos($$.pos));
 		}
 	;
 
