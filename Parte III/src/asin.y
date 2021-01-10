@@ -427,22 +427,7 @@ parametrosActuales
 
 listaParametrosActuales
 	: expresion
-		// {
-		// 		$$.ref = insTdD(-1, $1);
-		// 		$$.t = TALLA_TIPO_SIMPLE;
-		// }
 	| expresion COMA_ listaParametrosActuales
-		// {
-		// 	INF inf = obtTdD($3) 
-		// 	if(inf.t == T_ERROR){
-		// 		yyerror("Error en los parámetros actuales");
-		// 	}
-		// 	else{
-		// 		$$.ref = $3.ref;
-		// 		$$.t = $3.t + TALLA_TIPO_SIMPLE;
-		// 	}
-
-		// }
 	;
 
 constante
