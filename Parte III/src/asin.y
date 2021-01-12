@@ -223,12 +223,22 @@ instruccionSeleccion
 	;
 
 instruccionIteracion
-	: FOR_ APAR_ expresionOpcional PCOMA_ expresion PCOMA_ expresionOpcional 
-			{
-				if ($5.t != T_ERROR)
-					if ($5.t != T_LOGICO) yyerror("La expresion de evaluacion del \"for\" debe ser de tipo logico.");
-			}
-	  CPAR_ instruccion
+	: FOR_ APAR_ expresionOpcional 
+		{
+			// $3.salto = si;
+		}
+		PCOMA_ expresion PCOMA_ expresionOpcional 
+		{
+			if ($6.t != T_ERROR)
+				if ($6.t != T_LOGICO) yyerror("La expresion de evaluacion del \"for\" debe ser de tipo logico.");
+			// $2.condicion=creaLans(si);
+			// emite(EIGUAL, crArgPos($4.p), crArgEnt(FALSE), crArgEtq(-1));
+		}
+	  CPAR_ instruccion 
+	  {
+		  	// emite(GOTOS,crArgNul(),crArgNul(),crArgEtq($<flujo>2.salto));
+			// completaLans($<flujo>2.condicion,crArgEtq(si));
+	  }
 	;
 
 expresionOpcional 
