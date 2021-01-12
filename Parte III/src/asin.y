@@ -232,7 +232,7 @@ instruccionIteracion
 	;
 
 expresionOpcional 
-	: expresion { $$.t = $1.t; }
+	: expresion { $$.t = $1.t; $$.pos = creaVarTemp(); $$.pos = $1.pos; }
 	| ID_ IGUAL_ expresion 
 		{
             $$.t = T_ERROR;
@@ -250,7 +250,7 @@ expresionOpcional
 	;
 
 expresion 
-	: expresionIgualdad  { $$.t = $1.t; }
+	: expresionIgualdad  { $$.t = $1.t; $$.pos = creaVarTemp(); $$.pos = $1.pos;}
 	| expresion operadorLogico expresionIgualdad
 		{
 			$$.t = T_ERROR;
@@ -269,7 +269,7 @@ expresion
 	;
 
 expresionIgualdad 
-	: expresionRelacional { $$.t = $1.t; }
+	: expresionRelacional { $$.t = $1.t; $$.pos = creaVarTemp(); $$.pos = $1.pos;}
 	| expresionIgualdad operadorIgualdad expresionRelacional
 		{	
 			$$.t = T_ERROR;
@@ -291,7 +291,7 @@ expresionIgualdad
 	;
 
 expresionRelacional 
-	: expresionAditiva {$$.t = $1.t;}
+	: expresionAditiva {$$.t = $1.t; $$.pos = creaVarTemp(); $$.pos = $1.pos;}
 	| expresionRelacional operadorRelacional expresionAditiva
 		{
             $$.t = T_ERROR;
@@ -310,7 +310,7 @@ expresionRelacional
 	;
 
 expresionAditiva 
-	: expresionMultiplicativa { $$.t = $1.t;  }
+	: expresionMultiplicativa { $$.t = $1.t;  $$.pos = creaVarTemp(); $$.pos = $1.pos;}
 	| expresionAditiva operadorAditivo expresionMultiplicativa
 	{
         $$.t = T_ERROR;
@@ -327,7 +327,7 @@ expresionAditiva
 	;
 
 expresionMultiplicativa 
-	: expresionUnaria {$$.t = $1.t; }
+	: expresionUnaria {$$.t = $1.t; $$.pos = creaVarTemp(); $$.pos = $1.pos;}
 	| expresionMultiplicativa operadorMultiplicativo expresionUnaria
 		{
             $$.t = T_ERROR;
@@ -344,7 +344,7 @@ expresionMultiplicativa
 	;
 
 expresionUnaria 
-	: expresionSufija {$$.t = $1.t; $$.pos = $1.pos; }
+	: expresionSufija {$$.t = $1.t; $$.pos = creaVarTemp(); $$.pos = $1.pos; }
 	| operadorUnario expresionUnaria
 	{  
         $$.t = T_ERROR;
