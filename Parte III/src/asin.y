@@ -538,7 +538,7 @@ operadorUnario
 	;
 
 operadorIncremento
-	: DMAS_ 	{$$ = $$=ESUM;}
-	| DMENOS_	{$$ = $$=EDIF;}
+	: DMAS_ 	{$$=ESUM;}
+	| DMENOS_	{$$=EDIF;}
 	;
 %%
