@@ -255,6 +255,7 @@ expresionOpcional
                     yyerror("No existe ninguna variable con ese identificador.");
                 }
             }
+			emite(EASIG, crArgPos($3.pos), crArgNul(), crArgPos(sim.d));
 		}
 	| { $$.t = T_VACIO; }
 	;
