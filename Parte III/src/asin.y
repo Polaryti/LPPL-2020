@@ -343,7 +343,7 @@ expresionUnaria
         $$.t = T_ERROR;
         if ($2.t != T_ERROR) {
             if ($2.t == T_ENTERO) {                                                                         
-                if ($1 == OP_NOT) {
+                if ($1 == EDIST) {
 					yyerror("Incompatibilidad de tipos, no se puede negar un entero.");
 				} else { 
 					$$.t = T_ENTERO; 
@@ -375,8 +375,8 @@ expresionUnaria
 			$$.t = sim.t;
 		}
 		$$.pos=creaVarTemp();
-		emite($1,crArgPos(sim.desp),crArgEnt(1),crArgPos($$.pos));
-		emite(EASIG,crArgPos($$.pos),crArgNul(),crArgPos(sim.desp));
+		emite($1,crArgPos(sim.desp),crArgEnt(1),crArgPos(sim.desp));
+		emite(EASIG,crArgPossim.desp),crArgNul(),crArgPos($$.pos));
 	}
 	;
 
@@ -465,18 +465,18 @@ listaParametrosActuales
 constante
 	: CTE_   {$$.t = T_ENTERO;
 			$$.pos=creaVarTemp();
-			emite(EASIG,crArgEnt($1),crArgNul(),crArgPos($$.pos));}
+			emite(EASIG,crArgEnt($1.lexval),crArgNul(),crArgPos($$.pos));}
 	| TRUE_  {$$.t = T_LOGICO;
 			$$.pos=creaVarTemp();
-			emite(EASIG,crArgEnt(TRUE),crArgNul(),crArgPos($$.pos));}
+			emite(EASIG,crArgEnt(1),crArgNul(),crArgPos($$.pos));}
 	| FALSE_ {$$.t = T_LOGICO;
 			$$.pos=creaVarTemp();
-			emite(EASIG,crArgEnt(FALSE),crArgNul(),crArgPos($$.pos));}
+			emite(EASIG,crArgEnt(0),crArgNul(),crArgPos($$.pos));}
 	;
 
 operadorLogico
-	: AND_		{$$ = EAND;}
-	| OR_		{$$ = EOR;}
+	: AND_		{$$ = EMULT;}
+	| OR_		{$$ = ESUM;}
 	;
 
 operadorIgualdad
