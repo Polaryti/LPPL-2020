@@ -3,6 +3,7 @@
 	#include <string.h>
 	#include "header.h"
 	#include "libtds.h" 
+	#include "libgci.h"
 %}
 
 %union{
@@ -164,7 +165,7 @@ instruccionAsignacion
 					yyerror("Incompatibilidad de tipos, no son el mismo tipo o no son equivalentes.");
 				}
 			}
-			emite(EASIG, crArgPos($3.pos), crArgNul(), crArgPos(sim.d));
+			emite(EASIG, crArgPos(niv, $3.pos), crArgNul(), crArgPos(niv, sim.d));
 		}
 
 	| ID_ ACLAU_ expresion CCLAU_ IGUAL_ expresion PCOMA_
@@ -186,10 +187,8 @@ instruccionAsignacion
                     yyerror("Incompatibilidad de tipos, no son el mismo tipo o no son equivalentes."); 
                 }                      
             }
-			emite(EMULT,crArgPos($3.pos),crArgEnt(TALLA_TIPO_SIMPLE),crArgPos($3.pos));
-			$$.pos=creaVarTemp();
-			emite(EVA,crArgPos(sim.desp),crArgPos($3.pos),crArgPos($6.pos));
-			emite(EAV,crArgPos(sim.desp),crArgPos($3.pos),crArgPos($$.pos));
+			emite(EMULT,crArgPos(niv, $3.pos),crArgEnt(TALLA_TIPO_SIMPLE),crArgPos(niv, $3.pos));
+			emite(EVA,crArgPos(niv, sim.d),crArgPos(niv, $3.pos),crArgPos(niv,$6.pos));
 		}
 	;
 
@@ -200,25 +199,26 @@ instruccionEntradaSalida
 			if (sim.t != T_ENTERO) {
 				yyerror("El argumento de la funcion read() debe ser de tipo entero.");
 			}
-			emite(EREAD, crArgNul(), crArgNul(), crArgPos(sim.d));
+			emite(EREAD, crArgNul(), crArgNul(), crArgPos(niv, sim.d));
 		}
 	| PRINT_ APAR_ expresion CPAR_ PCOMA_
 		{
 			if ($3.t != T_ERROR && $3.t != T_ENTERO) {
 				yyerror("El argumento de la funcion print() debe ser de tipo entero.");
 			}
-			emite(EWRITE, crArgNul(), crArgNul(), crArgPos($3.pos));
+			emite(EWRITE, crArgNul(), crArgNul(), crArgPos(niv, $3.pos));
 		}
 	;
 
 instruccionSeleccion
 	: IF_ APAR_ expresion CPAR_ {$<cent>$ = creaLans(si); emite(EIGUAL, crArgEnt($3.pos), crArgEnt(0), crArgNul());} 
-	instruccion ELSE_ {int fin = creaLans(si); emite(GOTOS, crArgNul(), crArgNul(), crArgNul()); CompletaLans($5, si);}
+	instruccion ELSE_ {$<cent>$ = creaLans(si); 
+	emite(GOTOS, crArgNul(), crArgNul(), crArgNul()); completaLans($<cent>5, crArgEtq(si));}
 	instruccion
 		{
 			if ($3.t != T_ERROR)
 				if ($3.t != T_LOGICO) yyerror("La expresion de evaluacion del \"if\" debe ser de tipo logico.");
-			CompletaLans($8, si);
+			completaLans($<cent>8, crArgEtq(si));
 		}
 	;
 
@@ -230,12 +230,12 @@ instruccionIteracion
 		expresion PCOMA_ 
 		{
 			$<cent>$ = creaLans(si);
-			emite(EIGUAL, crArgPos($6.pos), crArgEnt(0), crArgNul();
+			emite(EIGUAL, crArgPos(niv, $6.pos), crArgEnt(0), crArgNul());
 		
 		}
 		{
 			$<cent>$ = creaLans(si);
-			emite(GOTOS, crArgNul(),crArgNul(),crArgNul())
+			emite(GOTOS, crArgNul(),crArgNul(),crArgNul());
 		}
 		{
 			$<cent>$ = si;
@@ -244,13 +244,13 @@ instruccionIteracion
 		{
 			if ($6.t != T_ERROR)
 				if ($6.t != T_LOGICO) yyerror("La expresion de evaluacion del \"for\" debe ser de tipo logico.");
-			emite(GOTOS, crArgNul(),crArgNul(),crArgEtq($5));
-			completaLans($9, si);
+			emite(GOTOS, crArgNul(),crArgNul(),crArgEtq($<cent>5));
+			completaLans($<cent>9, crArgEtq(si));
 		}
 	  CPAR_ instruccion 
 	  	{
-		  	emite(GOTOS, crArgNul(),crArgNul(),crArgEtq($10));
-			completaLans($8, si);
+		  	emite(GOTOS, crArgNul(),crArgNul(),crArgEtq($<cent>10));
+			completaLans($<cent>8, crArgEtq(si));
 	  	}
 	;
 
@@ -268,7 +268,7 @@ expresionOpcional
                     yyerror("No existe ninguna variable con ese identificador.");
                 }
             }
-			emite(EASIG, crArgPos($3.pos), crArgNul(), crArgPos(sim.d));
+			emite(EASIG, crArgPos(niv, $3.pos), crArgNul(), crArgPos(niv, sim.d));
 		}
 	| { $$.t = T_VACIO; }
 	;
@@ -286,9 +286,7 @@ expresion
 				}
 			}
 			$$.pos=creaVarTemp();
-			if($2==EASIG) emite($2,crArgPos($3.pos),crArgNul(),crArgPos(sim.desp));
-			else emite($2,crArgPos(sim.desp),crArgPos($3.pos),crArgPos(sim.desp));
-			emite(EASIG,crArgPos(sim.desp),crArgNul(),crArgPos($$.pos));
+			emite($2,crArgPos(niv, $1.pos),crArgPos(niv, $3.pos),crArgPos(niv, $$.pos));
 		}
 	;
 
@@ -308,9 +306,9 @@ expresionIgualdad
                 }
             } 
 			$$.pos=creaVarTemp();
-			emite(EASIG,crArgEnt(TRUE),crArgNul(),crArgPos($$.pos));
-			emite($2,crArgPos($1.pos),crArgPos($3.pos),crArgEtq(si+2));
-			emite(EASIG,crArgEnt(FALSE),crArgNul(),crArgPos($$.pos));
+			emite(EASIG,crArgEnt(TRUE),crArgNul(),crArgPos(niv, $$.pos));
+			emite($2,crArgPos(niv, $1.pos),crArgPos(niv, $3.pos),crArgEtq(si+2));
+			emite(EASIG,crArgEnt(FALSE),crArgNul(),crArgPos(niv, $$.pos));
 		}
 	;
 
@@ -327,9 +325,9 @@ expresionRelacional
 				}
 			}
 			$$.pos=creaVarTemp();
-			emite(EASIG,crArgEnt(TRUE),crArgNul(),crArgPos($$.pos));
-			emite($2,crArgPos($1.pos),crArgPos($3.pos),crArgEtq(si+2));
-			emite(EASIG,crArgEnt(FALSE),crArgNul(),crArgPos($$.pos));
+			emite(EASIG,crArgEnt(TRUE),crArgNul(),crArgPos(niv, $$.pos));
+			emite($2,crArgPos(niv, $1.pos),crArgPos(niv, $3.pos),crArgEtq(si+2));
+			emite(EASIG,crArgEnt(FALSE),crArgNul(),crArgPos(niv, $$.pos));
 		}
 	;
 
@@ -346,7 +344,7 @@ expresionAditiva
 			}
 		}
 		$$.pos = creaVarTemp();
-		emite($2, crArgPos($1.pos),crArgPos($3.pos), crArgPos($$.pos));
+		emite($2, crArgPos(niv, $1.pos),crArgPos(niv, $3.pos), crArgPos(niv, $$.pos));
 	}
 	;
 
@@ -363,7 +361,7 @@ expresionMultiplicativa
 				} 
 			}
 		$$.pos = creaVarTemp();
-		emite($2, crArgPos($1.pos),crArgPos($3.pos), crArgPos($$.pos));
+		emite($2, crArgPos(niv, $1.pos),crArgPos(niv, $3.pos), crArgPos(niv, $$.pos));
 		}
 	;
 
@@ -406,8 +404,8 @@ expresionUnaria
 			$$.t = sim.t;
 		}
 		$$.pos=creaVarTemp();
-		emite($1,crArgPos(sim.desp),crArgEnt(1),crArgPos(sim.desp));
-		emite(EASIG,crArgPossim.desp),crArgNul(),crArgPos($$.pos));
+		emite($1,crArgPos(niv, sim.d),crArgEnt(1),crArgPos(niv, sim.d));
+		emite(EASIG,crArgPos(niv, sim.d),crArgNul(),crArgPos(niv, $$.pos));
 	}
 	;
 
@@ -427,8 +425,8 @@ expresionSufija
 				yyerror("Incompatibilidad de tipos, solo se puede aplicar el operador \"++\" o \"--\" a una expresion entera.");
 			}
 			$$.pos=creaVarTemp();
-			emite(EASIG,crArgPos(sim.desp),crArgNul(),crArgPos($$.pos));
-			emite($2,crArgPos(sim.desp),crArgEnt(1),crArgPos(sim.desp));
+			emite(EASIG,crArgPos(niv, sim.d),crArgNul(),crArgPos(niv, $$.pos));
+			emite($2,crArgPos(niv, sim.d),crArgEnt(1),crArgPos(niv, sim.d));
 		}
 	| ID_ ACLAU_ expresion CCLAU_
 		{
@@ -444,9 +442,9 @@ expresionSufija
 				DIM dim = obtTdA(sim.ref);
 				$$.t = dim.telem;
 			}
-			emite(EMULT,crArgPos($3.pos),crArgEnt(TALLA_TIPO_SIMPLE),crArgPos($3.pos));
+			emite(EMULT,crArgPos(niv, $3.pos),crArgEnt(TALLA_TIPO_SIMPLE),crArgPos(niv, $3.pos));
 			$$.pos=creaVarTemp();
-			emite(EAV,crArgPos(sim.desp),crArgPos($3.pos),crArgPos($$.pos));
+			emite(EAV,crArgPos(niv, sim.d),crArgPos(niv, $3.pos),crArgPos(niv, $$.pos));
 		}
 	| ID_ APAR_ parametrosActuales CPAR_
 		{
@@ -475,11 +473,11 @@ expresionSufija
 				 $$.t = sim.t;
 			 }
 			$$.pos=creaVarTemp();
-			emite(EASIG,crArgPos(sim.desp),crArgNul(),crArgPos($$.pos));
+			emite(EASIG,crArgPos(niv, sim.d),crArgNul(),crArgPos(niv, $$.pos));
 		}
 	| constante {$$.t = $1.t;
 			$$.pos=creaVarTemp();
-			emite(EASIG,crArgPos($1.pos),crArgNul(),crArgPos($$.pos));}
+			emite(EASIG,crArgPos(niv, $1.pos),crArgNul(),crArgPos(niv, $$.pos));}
 	;
 
 parametrosActuales
@@ -496,13 +494,13 @@ listaParametrosActuales
 constante
 	: CTE_   {$$.t = T_ENTERO;
 			$$.pos=creaVarTemp();
-			emite(EASIG,crArgEnt($1.lexval),crArgNul(),crArgPos($$.pos));}
+			emite(EASIG,crArgEnt($1),crArgNul(),crArgPos(niv, $$.pos));}
 	| TRUE_  {$$.t = T_LOGICO;
 			$$.pos=creaVarTemp();
-			emite(EASIG,crArgEnt(1),crArgNul(),crArgPos($$.pos));}
+			emite(EASIG,crArgEnt(1),crArgNul(),crArgPos(niv, $$.pos));}
 	| FALSE_ {$$.t = T_LOGICO;
 			$$.pos=creaVarTemp();
-			emite(EASIG,crArgEnt(0),crArgNul(),crArgPos($$.pos));}
+			emite(EASIG,crArgEnt(0),crArgNul(),crArgPos(niv, $$.pos));}
 	;
 
 operadorLogico
