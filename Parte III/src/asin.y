@@ -186,6 +186,10 @@ instruccionAsignacion
                     yyerror("Incompatibilidad de tipos, no son el mismo tipo o no son equivalentes."); 
                 }                      
             }
+			emite(EMULT,crArgPos($3.pos),crArgEnt(TALLA_TIPO_SIMPLE),crArgPos($3.pos));
+			$$.pos=creaVarTemp();
+			emite(EVA,crArgPos(sim.desp),crArgPos($3.pos),crArgPos($6.pos));
+			emite(EAV,crArgPos(sim.desp),crArgPos($3.pos),crArgPos($$.pos));
 		}
 	;
 
