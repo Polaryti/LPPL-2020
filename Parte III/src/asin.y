@@ -208,10 +208,13 @@ instruccionEntradaSalida
 	;
 
 instruccionSeleccion
-	: IF_ APAR_ expresion CPAR_ instruccion ELSE_ instruccion
+	: IF_ APAR_ expresion CPAR_ {$<cent>$ = creaLans(si); emite(EIGUAL, crArgEnt($3.pos), crArgEnt(0), crArgNul());} 
+	instruccion ELSE_ {int fin = creaLans(si); emite(GOTOS, crArgNul(), crArgNul(), crArgNul()); CompletaLans($5, si);}
+	instruccion
 		{
 			if ($3.t != T_ERROR)
 				if ($3.t != T_LOGICO) yyerror("La expresion de evaluacion del \"if\" debe ser de tipo logico.");
+			CompletaLans($8, si);
 		}
 	;
 
