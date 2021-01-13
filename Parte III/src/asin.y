@@ -74,12 +74,26 @@ tipoSimple
 	;
 
 declaracionFuncion
-	: cabeceraFuncion { $<cent>$ = dvar; dvar = 0; } bloque
+	: cabeceraFuncion 
+		{ 
+			$<cent>$ = dvar; dvar = 0;
+		}
+		{
+			emite(PUSHFP, crArgNul(), crArgNul(), crArgNul()); 
+			emite(FPTOP, crArgNul(), crArgNul(), crArgNul()); 
+			$<cent>$ = creaLans(si);
+			esmite(INCTOP, crArgNul(), crArgNul(), crArgNul()); 
+		} 
+		bloque
 		{
 			descargaContexto(niv); 
 			niv = 0; 
 			dvar = $<cent>2;
 			$$ = $1;
+			completaLans($<cent>3, dvar);
+			emite(TOPFP, crArgNul(), crArgNul(), crArgNul()); 
+			emite(FPPOP, crArgNul(), crArgNul(), crArgNul()); 
+			emite(RET, crArgNul(), crArgNul(), crArgNul()); 
 		}
 	;
 
@@ -279,7 +293,7 @@ expresion
 	| expresion operadorLogico expresionIgualdad
 		{
 			$$.t = T_ERROR;
-			if ($1.t != T_ERROR || $3.t != T_ERROR) {
+			if ($1.t != T_ERROR && $3.t != T_ERROR) {
 				if (!($1.t == $3.t && $1.t == T_LOGICO)) {
 					yyerror("Incompatibilidad de tipos, no son el mismo tipo o no son equivalentes.");
 				} else {
@@ -300,7 +314,7 @@ expresionIgualdad
             if ($1.t != T_ERROR && $3.t != T_ERROR) {
                 if ($1.t != $3.t) {
                     yyerror("Incompatibilidad de tipos, no son el mismo tipo o no son equivalentes.");
-                } else if ($3.t != T_LOGICO || $3.t != T_ENTERO) { 
+                } else if ($3.t != T_LOGICO && $3.t != T_ENTERO) { 
                     yyerror("Incompatibilidad de tipos, deben ser expresiones logicas o de enteros.");
                 }  else {
                     $$.t = T_LOGICO;
@@ -455,7 +469,7 @@ expresionSufija
 			
 			SIMB sim = obtTdS($1);
 
-			$$ = T_ERROR;
+			$<cent>$ = T_ERROR;
 			
 			if (sim.t == T_ERROR) { 
 				yyerror("No existe ninguna variable con ese identificador."); 
@@ -464,14 +478,15 @@ expresionSufija
 			if (inf.t == T_ERROR) { 
 				yyerror("No existe ninguna funcion con ese identificador."); 
 			} else {
-				$$ = inf.t;
+				$<cent>$ = inf.t;
 			}
 			emite(INCTOP, crArgNul(), crArgNul(), crArgEnt(TALLA_TIPO_SIMPLE))
 		}
 	 APAR_ parametrosActuales CPAR_
-		{
+		{   
+			SIMB sim = obtTdS($1);
 			emite(PUSHFP, crArgNul(), crArgNul(), crArgNul());
-
+			emite(CALL, crArgNul(), crArgNul(), crArgEnt(sim.d));
 			$$.pos = $<cent>2;
 			$$.t = $<cent>3;
 		}
