@@ -521,9 +521,9 @@ expresionSufija
 			} else {
 				$$.t = inf.t;
 			}
-			emite(EPUSH, crArgNul(), crArgNul(), crArgEtq(si));
+			//emite(EPUSH, crArgNul(), crArgNul(), crArgEtq(si));
 			emite(CALL, crArgNul(), crArgNul(), crArgEnt(sim.d));
-			emite(EPOP, crArgNul(), crArgNul(), crArgEtq(si));
+			//emite(EPOP, crArgNul(), crArgNul(), crArgEtq(si));
 			emite(DECTOP, crArgNul(), crArgNul(), crArgEnt(inf.tsp));
 			$$.pos = creaVarTemp();
         	emite(EPOP, crArgNul(), crArgNul(), crArgPos(niv, $$.pos));
