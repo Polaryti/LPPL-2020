@@ -11,7 +11,6 @@
 	char *ident;
 	Lista lista;
 	Expresion texp;
-	Argumento arg;
 }
 %token MAS_ DMAS_ MENOS_ DMENOS_ POR_ DIV_ IGUAL_ INT_ BOOL_
 %token TRUE_ FALSE_ MAY_ MEN_ MAYIG_ MENIG_ DIGUAL_ DIF_ NEG_ AND_ OR_
@@ -25,7 +24,6 @@
 			   operadorAditivo operadorRelacional operadorIgualdad  operadorLogico 
 			   listaDeclaraciones declaracion declaracionFuncion cabeceraFuncion
             
-%type<arg> listaParametrosFormales parametrosFormales
 %type  <texp>  expresionOpcional expresion expresionIgualdad expresionRelacional 
 			   expresionAditiva expresionMultiplicativa expresionUnaria expresionSufija
                constante
@@ -566,9 +564,9 @@ parametrosActuales
 
 
 listaParametrosActuales
-	: expresion {$$ = insTdD(-1,$1.tipo);
+	: expresion {$$.ref = insTdD(-1,$1.tipo);
 		emite(EPUSH, crArgNul(), crArgNul(), crArgPos(niv, $1.pos));}
-	| expresion COMA_ listaParametrosActuales { $$ = insTdD($3,$1.tipo);
+	| expresion COMA_ listaParametrosActuales { $$.ref = insTdD($3,$1.tipo);
 	emite(EPUSH, crArgNul(), crArgNul(), crArgEnt($1.pos));}
 	;
 
