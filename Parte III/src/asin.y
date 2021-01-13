@@ -46,7 +46,7 @@ programa
 		completaLans($<lista>1.ref, crArgEnt(dvar));
 		if(verTdS) mostrarTdS();
 		SIMB sim = obtTdS("main");
-       	completaLans($<lista>1.b, crArgEtq(sim.d));
+       	completaLans($<lista>1.talla, crArgEtq(sim.d));
 		//if(verTdS) mostrarTdS();
 	} 
     
@@ -559,8 +559,8 @@ expresionSufija
 	;
 
 parametrosActuales
-	: listaParametrosActuales
-	|
+	: listaParametrosActuales {$$ = $1;}
+	|  {$$ = insTdD(-1,T_VACIO);} 
 	;
 
 
