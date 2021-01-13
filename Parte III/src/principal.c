@@ -1,6 +1,5 @@
 /*****************************************************************************/
-/*  Programa principal y tratamiento de errores.                             */
-/*                       Jose Miguel Benedi, 2020-2021 <jbenedi@dsic.upv.es> */
+/*  Programa principal y tratamiento de errores.   
 /*****************************************************************************/
 #include <stdio.h>
 #include <string.h>

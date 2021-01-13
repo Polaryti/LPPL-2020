@@ -5,44 +5,29 @@
 /*****************************************************************************/
 #ifndef _HEADER_H
 #define _HEADER_H
-#define TALLA_TIPO_SIMPLE 1
-#define TALLA_SEGENLACES 2
 
 /****************************************************** Constantes generales */
 #define TRUE  1
 #define FALSE 0
-#define CTE 2
-#define INT 3
-#define BOOL 4
-/******************************************************** Oeradores unarios  */
-
-#define ERROR_NO_HAY_MAIN "Se debe declarar un main"
-#define ERROR_VAR_NO_DEFINIDA "La variable no esta definida"
-#define ERROR_VARIABLE_DECLARADA "Esta variable ya ha sido declarada"
-#define ERROR_ARRAY_INVALIDO "El tamaño del array debe de ser un entero positivo"
-#define ERROR_DE_TIPO "El tipo no es correcto"
-#define ERROR_OBJ_NO_DECLARADO "El objeto no ha sido declarado"
+#define TALLA_TIPO_SIMPLE 1     /* Talla asociada a los tipos simples */
+#define TALLA_SEGENLACES 2      /* Talla del segmento de Enlaces de Control */
 
 
+#define OP_NOT 29
+#define OP_INCR 30
+#define OP_DECR 31
+#define OP_OR 32
+#define OP_AND 33
 
-/******************************************************* Estructuras de datos */
-typedef struct expr{
-   int tipo;        // tipo
-   //int n;           NUEVO nombre
-   //int valor;       NUEVO valor
-   int pos;
-}EXPR;
-typedef struct argu{
-   int talla;       // talla
-   int ref;         // valor
-}ARGU;
 typedef struct lista{
-   int cent;
-   int a;
-   int b;
-   int c;
-   int d;
-}LISTA;
+    int ref;
+    int talla;
+} Lista;
+typedef struct texp{
+   int t;           
+   int pos;       
+} Expresion;
+
 /************************************* Variables externas definidas en el AL */
 extern int yylex();
 extern int yyparse();
@@ -50,17 +35,18 @@ extern int yyparse();
 extern FILE *yyin;                           /* Fichero de entrada           */
 extern int   yylineno;                       /* Contador del numero de linea */
 extern char *yytext;                         /* Patron detectado             */
+
 /********* Funciones y variables externas definidas en el Programa Principal */
-extern void yyerror(const char * msg) ;   /* Tratamiento de errores          */
+extern void yyerror(const char * msg) ;     /* Tratamiento de errores          */
 
-extern int verTdS;
-extern int dvar;
-extern int niv;
+extern int verbosidad;                      /* Flag si se desea una traza       */
+extern int numErrores;                      /* Contador del numero de errores        */
+extern int verTdS;                          /* Flag para saber si mostrar la TdS */
+
+extern int dvar;                            /* Desplazamiento en el Segmento de Variables */
+extern int niv;                             /* Nivel de anidamiento "global" o "local" */
+
 extern int si;
-
-extern int verbosidad;                   /* Flag si se desea una traza       */
-extern int numErrores;              /* Contador del numero de errores        */
-
 
 #endif  /* _HEADER_H */
 /*****************************************************************************/
