@@ -300,7 +300,7 @@ expresionIgualdad
             if ($1.t != T_ERROR && $3.t != T_ERROR) {
                 if ($1.t != $3.t) {
                     yyerror("Incompatibilidad de tipos, no son el mismo tipo o no son equivalentes.");
-                } else if ($3.t != T_LOGICO && $3.t != T_ENTERO) { 
+                } else if ($3.t != T_LOGICO || $3.t != T_ENTERO) { 
                     yyerror("Incompatibilidad de tipos, deben ser expresiones logicas o de enteros.");
                 }  else {
                     $$.t = T_LOGICO;
@@ -447,11 +447,15 @@ expresionSufija
 			$$.pos=creaVarTemp();
 			emite(EAV,crArgPos(niv, sim.d),crArgPos(niv, $3.pos),crArgPos(niv, $$.pos));
 		}
-	| ID_ APAR_ parametrosActuales CPAR_
+	| ID_
 		{
+			$<cent>$ = creaVarTemp();
+		}
+		{
+			
 			SIMB sim = obtTdS($1);
 
-			$$.t = T_ERROR;
+			$$ = T_ERROR;
 			
 			if (sim.t == T_ERROR) { 
 				yyerror("No existe ninguna variable con ese identificador."); 
@@ -460,8 +464,16 @@ expresionSufija
 			if (inf.t == T_ERROR) { 
 				yyerror("No existe ninguna funcion con ese identificador."); 
 			} else {
-				$$.t = inf.t;
+				$$ = inf.t;
 			}
+			emite(INCTOP, crArgNul(), crArgNul(), crArgEnt(TALLA_TIPO_SIMPLE))
+		}
+	 APAR_ parametrosActuales CPAR_
+		{
+			emite(PUSHFP, crArgNul(), crArgNul(), crArgNul());
+
+			$$.pos = $<cent>2;
+			$$.t = $<cent>3;
 		}
 	| ID_ 
 		{
@@ -488,8 +500,8 @@ parametrosActuales
 
 
 listaParametrosActuales
-	: expresion
-	| expresion COMA_ listaParametrosActuales
+	: expresion {emite(EPUSH, crArgNul(), crArgNul(), crArgEnt($1.pos));}
+	| expresion COMA_ listaParametrosActuales {emite(EPUSH, crArgNul(), crArgNul(), crArgEnt($1.pos));}
 	;
 
 constante
