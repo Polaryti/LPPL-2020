@@ -206,22 +206,16 @@ instruccionAsignacion
 
 	| ID_ ACLAU_ expresion CCLAU_ IGUAL_ expresion PCOMA_
 		{
-			SIMB sim = obtTdS($1); DIM dim;
-			
-            if (sim.t != T_ARRAY) {
-                yyerror("La variable no es un vector, no se puede acceder mediante indices.");
-            } else {
-                dim = obtTdA(sim.ref);
-            }
+			SIMB sim = obtTdS($1);
+            if(sim.t != T_ARRAY){ yyerror("No es de tipo array"); } 
+            else{ DIM dim = obtTdA(sim.ref);
             
-			if ($3.t != T_ERROR && $6.t != T_ERROR) {                    
-                if (sim.t == T_ERROR) {
-                    yyerror("No existe ninguna variable con ese identificador.");
-                } else if (! ($3.t == T_ENTERO)) {
-                    yyerror("El indice para acceder a un vector debe ser un entero 0 o positivo.");
-                } else if (! ($6.t == dim.telem)) { 
-                    yyerror("Incompatibilidad de tipos, no son el mismo tipo o no son equivalentes."); 
-                }                      
+				if($3.t != T_ERROR && $6.t != T_ERROR){                    
+					if (sim.t == T_ERROR) yyerror("Variable ya declarada.");                                          // 1 - el array ID ha sido declarado 
+					else if (! (sim.t == T_ARRAY))  yyerror("Error de tipos.");                                           // 2 - el objeto ID no es un array
+					else if (! ($3.t == T_ENTERO))  yyerror("El numero de elemento del array no es un entero");    // 3 - el indice para acceder al array no es de tipo entero
+					else if (! ($6.t == dim.telem)) { yyerror("Error con los tipos"); }
+				}
             }
 			emite(EVA,crArgPos(sim.n, sim.d),crArgPos(niv, $3.pos),crArgPos(niv,$6.pos));
 		}
@@ -321,12 +315,10 @@ expresion
 		{
 			$$.t = T_ERROR;
 			if ($1.t != T_ERROR && $3.t != T_ERROR) {
-				if (!($1.t == $3.t && $1.t == T_LOGICO)) {
-					yyerror("Incompatibilidad de tipos, no son el mismo tipo o no son equivalentes.");
-				} else {
-					$$.t = T_LOGICO;
-				}
-			}
+				if ($1.t != $3.t) {yyerror("Incompatibilidad de tipos, no son el mismo tipo o no son equivalentes.");}  
+				else if ($1.t != T_LOGICO) {yyerror("Operacion logica invalida para no booleanos");} 
+				else {$$.t = T_LOGICO;}
+        	}
 			$$.pos = creaVarTemp();
 			if ($2 == EMULT) { // DUDA
 				emite(EMULT, crArgPos(niv, $1.pos), crArgPos(niv, $3.pos), crArgPos(niv, $$.pos));
@@ -365,11 +357,11 @@ expresionRelacional
 	| expresionRelacional operadorRelacional expresionAditiva
 		{
             $$.t = T_ERROR;
-			if ($1.t != T_ERROR && $3.t != T_ERROR){
-				if (!($1.t == $3.t && $1.t == T_ENTERO)) {
-					yyerror("Incompatibilidad de tipos, no son el mismo tipo o no son equivalentes.");
-				} else {
-					$$.t = T_LOGICO;
+			if ($1.t != T_ERROR && $3.t != T_ERROR) {
+				if ($1.t != $3.t) { 
+						yyerror("Incompatibilidad de tipos, no son el mismo tipo o no son equivalentes.El argumento de la opercaión relacional debe ser de tipo entero.");}   
+				else {
+					$$.t = T_LOGICO;                      
 				}
 			}
 			$$.pos=creaVarTemp();
