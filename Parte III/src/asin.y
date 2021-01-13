@@ -46,14 +46,12 @@ programa
 		if($2 != -1) {
 			yyerror("No se ha encontrado el main.");
 		}
-		completaLans($<aux>1.ref1, crArgEnt(dvar));
-		SIMB sim = obtTdS("main");
-		$<aux>$.ref3 = sim.d;
-       	completaLans($<aux>1.ref2, crArgEtq($<aux>$.ref3));
-		//if(verTdS) mostrarTdS();
-	} 
-    
-	;
+       completaLans($<aux>1.ref1, crArgEnt(dvar));
+       SIMB sim = obtTdS("main");
+       $<aux>$.ref3 = sim.d;
+       completaLans($<aux>1.ref2, crArgEtq($<aux>$.ref3));
+
+      };
 
 listaDeclaraciones    
 	: declaracion { $$ = $1; }
@@ -523,9 +521,7 @@ expresionSufija
 			} else {
 				$$.t = inf.t;
 			}
-			//emite(EPUSH, crArgNul(), crArgNul(), crArgEtq(si));
 			emite(CALL, crArgNul(), crArgNul(), crArgEnt(sim.d));
-			//emite(EPOP, crArgNul(), crArgNul(), crArgEtq(si));
 			emite(DECTOP, crArgNul(), crArgNul(), crArgEnt(inf.tsp));
 			$$.pos = creaVarTemp();
         	emite(EPOP, crArgNul(), crArgNul(), crArgPos(niv, $$.pos));
@@ -558,7 +554,7 @@ parametrosActuales
 listaParametrosActuales
 	: expresion {$$ = insTdD(-1,$1.t);
 		emite(EPUSH, crArgNul(), crArgNul(), crArgPos(niv, $1.pos));}
-	| expresion COMA_	{emite(EPUSH, crArgNul(), crArgNul(), crArgEnt($1.pos));}
+	| expresion COMA_	{emite(EPUSH, crArgNul(), crArgNul(), crArgPos(niv,$1.pos));}
 	 listaParametrosActuales { $$ = insTdD($4,$1.t);}
 	;
 
