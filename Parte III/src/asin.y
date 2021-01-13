@@ -82,7 +82,7 @@ declaracionFuncion
 			emite(PUSHFP, crArgNul(), crArgNul(), crArgNul()); 
 			emite(FPTOP, crArgNul(), crArgNul(), crArgNul()); 
 			$<cent>$ = creaLans(si);
-			esmite(INCTOP, crArgNul(), crArgNul(), crArgNul()); 
+			emite(INCTOP, crArgNul(), crArgNul(), crArgNul()); 
 		} 
 		bloque
 		{
@@ -90,7 +90,7 @@ declaracionFuncion
 			niv = 0; 
 			dvar = $<cent>2;
 			$$ = $1;
-			completaLans($<cent>3, dvar);
+			completaLans($<cent>3, crArgEnt(dvar));
 			emite(TOPFP, crArgNul(), crArgNul(), crArgNul()); 
 			emite(FPPOP, crArgNul(), crArgNul(), crArgNul()); 
 			emite(RET, crArgNul(), crArgNul(), crArgNul()); 
@@ -480,13 +480,20 @@ expresionSufija
 			} else {
 				$<cent>$ = inf.t;
 			}
-			emite(INCTOP, crArgNul(), crArgNul(), crArgEnt(TALLA_TIPO_SIMPLE))
+			if (sim.t != T_VACIO){
+				emite(INCTOP, crArgNul(), crArgNul(), crArgEnt(TALLA_TIPO_SIMPLE));
+			} else {
+				emite(INCTOP, crArgNul(), crArgNul(), crArgEnt(0));
+			}
 		}
 	 APAR_ parametrosActuales CPAR_
 		{   
 			SIMB sim = obtTdS($1);
-			emite(PUSHFP, crArgNul(), crArgNul(), crArgNul());
+			INF inf = obtTdD(sim.ref);
+			emite(PUSH, crArgNul(), crArgNul(), crArgEnt(dvar));
 			emite(CALL, crArgNul(), crArgNul(), crArgEnt(sim.d));
+			emite(POP, crArgNul(), crArgNul(), crArgEnt(dvar));
+			emite(INCTOP, crArgNul(), crArgNul(), crArgEnt(-inf.tsp));
 			$$.pos = $<cent>2;
 			$$.t = $<cent>3;
 		}
