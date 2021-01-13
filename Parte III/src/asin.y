@@ -284,6 +284,7 @@ expresionOpcional
                 }
             }
 			emite(EASIG, crArgPos(niv, $3.pos), crArgNul(), crArgPos(niv, sim.d));
+			emite(EASIG,crArgPos(niv, sim.d),crArgNul(),crArgPos(niv, $$.pos));
 		}
 	| { $$.t = T_VACIO; }
 	;
@@ -302,6 +303,10 @@ expresion
 			}
 			$$.pos=creaVarTemp();
 			emite($2,crArgPos(niv, $1.pos),crArgPos(niv, $3.pos),crArgPos(niv, $$.pos));
+			if ($2 == ESUM) {
+				emite(EMENEQ,crArgPos($$.pos),crArgEnt(1),crArgEtq(si+2));
+				emite(EASIG,crArgEnt(TRUE),crArgNul(),crArgPos($$.pos));
+			}
 		}
 	;
 
@@ -402,6 +407,13 @@ expresionUnaria
 				yyerror("Incompatibilidad de tipos, no son el mismo tipo o no son equivalentes.");
 			}                                                               
         } 
+		$$.pos=creaVarTemp();
+		if($1==EDIST){
+			emite(EDIF,crArgEnt(1),crArgPos(niv, $2.pos),crArgPos(niv, $$.pos));
+		}
+		else if($1==EDIF){
+			emite(ESIG,crArgPos(niv, $2.pos),crArgNul(),crArgPos(niv, $$.pos));
+		}
     }
 	| operadorIncremento ID_
 	{
@@ -532,10 +544,10 @@ constante
 			emite(EASIG,crArgEnt($1),crArgNul(),crArgPos(niv, $$.pos));}
 	| TRUE_  {$$.t = T_LOGICO;
 			$$.pos=creaVarTemp();
-			emite(EASIG,crArgEnt(1),crArgNul(),crArgPos(niv, $$.pos));}
+			emite(EASIG,crArgEnt(TRUE),crArgNul(),crArgPos(niv, $$.pos));}
 	| FALSE_ {$$.t = T_LOGICO;
 			$$.pos=creaVarTemp();
-			emite(EASIG,crArgEnt(0),crArgNul(),crArgPos(niv, $$.pos));}
+			emite(EASIG,crArgEnt(FALSE),crArgNul(),crArgPos(niv, $$.pos));}
 	;
 
 operadorLogico
