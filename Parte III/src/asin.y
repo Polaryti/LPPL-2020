@@ -252,25 +252,25 @@ instruccionSeleccion
 	{
 		if ($3.t != T_ERROR)
 				if ($3.t != T_LOGICO) yyerror("La expresion de evaluacion del \"if\" debe ser de tipo logico.");
-		$<aux>$.val = creaLans(si); 
+		$<aux>$.valor = creaLans(si); 
 		emite(EIGUAL, crArgPos(niv, $3.pos), crArgEnt(FALSE), crArgEtq(-1));
 	} 
 	instruccion 
 	{
-		$<aux>$.val = creaLans(si); 
+		$<aux>$.valor = creaLans(si); 
 		emite(GOTOS, crArgNul(), crArgNul(), crArgEtq(-1)); 
-		completaLans($<aux>5.val, crArgEtq(si));
+		completaLans($<aux>5.valor, crArgEtq(si));
 	}
 	ELSE_ instruccion
 		{
-			completaLans($<aux>7.val, crArgEtq(si));
+			completaLans($<aux>7.valor, crArgEtq(si));
 		}
 	;
 
 instruccionIteracion
 	: FOR_ APAR_ expresionOpcional PCOMA_
 		{
-			$<aux>$.val = si;
+			$<aux>$.valor = si;
 		}
 		expresion PCOMA_ 
 		{
@@ -286,7 +286,7 @@ instruccionIteracion
 		}
 		expresionOpcional  CPAR_ 
 		{
-			emite(GOTOS, crArgNul(), crArgNul(), crArgEtq($<aux>5.val) ); 
+			emite(GOTOS, crArgNul(), crArgNul(), crArgEtq($<aux>5.valor) ); 
          	completaLans($<aux>8.ref1, crArgEtq(si));
 		}
 		
