@@ -30,9 +30,9 @@
 
 %%
 programa 
-	: { dvar=0; niv = 0; cargaContexto(); }
+	: { dvar=0; niv = 0; cargaContexto(niv); si = 0; }
 	listaDeclaraciones
-	{ if(verTdS) mostrarTdS(); } 
+	{ if(verTdS) mostrarTdS(); emite(FIN, crArgNul(), crArgNul(), crArgNul());} 
     ;
 
 listaDeclaraciones    
@@ -82,7 +82,7 @@ declaracionFuncion
 			emite(PUSHFP, crArgNul(), crArgNul(), crArgNul()); 
 			emite(FPTOP, crArgNul(), crArgNul(), crArgNul()); 
 			$<cent>$ = creaLans(si);
-			emite(INCTOP, crArgNul(), crArgNul(), crArgEtq(-1)); 
+			emite(INCTOP, crArgNul(), crArgNul(), crArgNul()); 
 		} 
 		bloque
 		{
@@ -231,12 +231,12 @@ instruccionSeleccion
 		if ($3.t != T_ERROR)
 				if ($3.t != T_LOGICO) yyerror("La expresion de evaluacion del \"if\" debe ser de tipo logico.");
 		$<cent>$ = creaLans(si); 
-		emite(EIGUAL, crArgEnt($3.pos), crArgEnt(FALSE), crArgEtq(-1));
+		emite(EIGUAL, crArgEnt($3.pos), crArgEnt(FALSE), crArgNul());
 	} 
 	instruccion 
 	{
 		$<cent>$ = creaLans(si); 
-		emite(GOTOS, crArgNul(), crArgNul(), crArgEtq(-1)); 
+		emite(GOTOS, crArgNul(), crArgNul(), crArgNul()); 
 		completaLans($<cent>5, crArgEtq(si));
 	}
 	ELSE_ instruccion
@@ -253,12 +253,12 @@ instruccionIteracion
 		expresion PCOMA_ 
 		{
 			$<cent>$ = creaLans(si);
-			emite(EIGUAL, crArgPos(niv, $6.pos), crArgEnt(0), crArgEtq(-1));
+			emite(EIGUAL, crArgPos(niv, $6.pos), crArgEnt(0), crArgNul());
 		
 		}
 		{
 			$<cent>$ = creaLans(si);
-			emite(GOTOS, crArgNul(),crArgNul(),crArgEtq(-1));
+			emite(GOTOS, crArgNul(),crArgNul(),crArgNul());
 		}
 		{
 			$<cent>$ = si;
