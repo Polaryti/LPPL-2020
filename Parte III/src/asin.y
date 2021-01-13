@@ -512,7 +512,7 @@ expresionSufija
 			} else {
 				$$.t = inf.t;
 			}
-			emite(CALL, crArgNul(), crArgNul(), crArgEnt(sim.d));
+			emite(CALL, crArgNul(), crArgNul(), crArgEtq(sim.d));
 			emite(DECTOP, crArgNul(), crArgNul(), crArgEnt(inf.tsp));
 			$$.pos = creaVarTemp();
         	emite(EPOP, crArgNul(), crArgNul(), crArgPos(niv, $$.pos));
