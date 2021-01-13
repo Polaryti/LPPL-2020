@@ -30,19 +30,19 @@
 
 %%
 programa 
-	: { dvar=0; niv = 0; cargaContexto(niv); }
+	: { dvar=0; niv = 0; si=0;}
 	listaDeclaraciones
 	{ if(verTdS) mostrarTdS(); } 
     ;
 
 listaDeclaraciones    
-	: declaracion { $$ = $1; }
-	|listaDeclaraciones declaracion { $$ = $1 + $2; }
+	: declaracion 
+	|listaDeclaraciones declaracion
     ;
 
 declaracion   
-	: declaracionVariable { $$ = 0; }
-	| declaracionFuncion { $$ = $1; }
+	: declaracionVariable
+	| declaracionFuncion 
     ;
 
 declaracionVariable    
