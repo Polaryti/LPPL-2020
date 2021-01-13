@@ -30,10 +30,26 @@
 
 %%
 programa 
-	: { dvar=0; niv = 0; cargaContexto(niv); si = 0; }
+	: { 
+		dvar=0; niv = GLOBAL; si =0; cargaContexto(niv);
+		$<list>$.ref = creaLans(si);
+       	emite(INCTOP, crArgNul(), crArgNul(), crArgEnt(-1));
+		$<lista>$.talla = creaLans(si);
+        emite(GOTOS, crArgNul(), crArgNul(), crArgEtq(-1));
+	}
 	listaDeclaraciones
-	{ if(verTdS) mostrarTdS(); emite(FIN, crArgNul(), crArgNul(), crArgNul());} 
-    ;
+	{ 
+		if($2 != -1) {
+			yyerror(ERROR_NO_HAY_MAIN);
+		}
+		completaLans($<lista>1.ref, crArgEnt(dvar));
+		if(verTdS) mostrarTdS();
+		SIMB sim = obtTdS("main");
+       	completaLans($<list>1.b, crArgEtq(sim.d));
+		//if(verTdS) mostrarTdS();
+	} 
+    
+	;
 
 listaDeclaraciones    
 	: declaracion { $$ = $1; }
@@ -78,22 +94,11 @@ declaracionFuncion
 		{ 
 			$<cent>$ = dvar; dvar = 0;
 		}
-		{
-			emite(PUSHFP, crArgNul(), crArgNul(), crArgNul()); 
-			emite(FPTOP, crArgNul(), crArgNul(), crArgNul()); 
-			$<cent>$ = creaLans(si);
-			emite(INCTOP, crArgNul(), crArgNul(), crArgNul()); 
-		} 
 		bloque
 		{
 			descargaContexto(niv); 
 			niv = 0; 
 			dvar = $<cent>2;
-			$$ = $1;
-			completaLans($<cent>3, crArgEtq(si));
-			emite(TOPFP, crArgNul(), crArgNul(), crArgNul()); 
-			emite(FPPOP, crArgNul(), crArgNul(), crArgNul()); 
-			emite(RET, crArgNul(), crArgNul(), crArgNul()); 
 		}
 	;
 
@@ -140,15 +145,28 @@ listaParametrosFormales
 	;
 
 bloque
-	: ALLAVE_ declaracionVariableLocal listaInstrucciones RETURN_ expresion PCOMA_ CLLAVE_
-		{ 
-			INF inf = obtTdD(-1);
-			if (inf.t != T_ERROR) {
-				if (inf.t != $5.t) {
-					yyerror("Incompatibilidad de tipos, no son el mismo tipo o no son equivalentes."); 
-				}     
-			}
+	: ALLAVE_ {
+		emite( PUSHFP, crArgNul(), crArgNul(), crArgNul() );
+        emite( FPTOP, crArgNul(), crArgNul(), crArgNul() );
+        $<cent>$ = creaLans(si);
+        emite( INCTOP, crArgNul(), crArgNul(), crArgEnt(-1) );  
+	}
+	declaracionVariableLocal listaInstrucciones RETURN_ expresion PCOMA_ CLLAVE_
+	{ 
+		INF inf = obtTdD(-1);
+		if (inf.t != T_ERROR) {
+			if (inf.t != $5.t) {
+				yyerror("Incompatibilidad de tipos, no son el mismo tipo o no son equivalentes."); 
+			}     
 		}
+		completaLans( $<cent>2, crArgEnt(dvar) );
+        int dret = TALLA_SEGENLACES + TALLA_TIPO_SIMPLE + inf.tsp;
+        emite( EASIG, crArgPos(niv,$6.pos) , crArgNul(), crArgPos(niv, -dret));
+        emite( TOPFP, crArgNul(), crArgNul(), crArgNul() );
+        emite( FPPOP, crArgNul(), crArgNul(), crArgNul() );
+        if (strcmp(inf.nom,"main")==0) { emite( FIN, crArgNul(), crArgNul(), crArgNul() ); }
+        else { emite( RET, crArgNul(), crArgNul(), crArgNul() ); }
+	}
 	;
 
 declaracionVariableLocal
@@ -202,7 +220,7 @@ instruccionAsignacion
                     yyerror("Incompatibilidad de tipos, no son el mismo tipo o no son equivalentes."); 
                 }                      
             }
-			emite(EMULT,crArgPos(niv, $3.pos),crArgEnt(TALLA_TIPO_SIMPLE),crArgPos(niv, $3.pos));
+			//emite(EMULT,crArgPos(niv, $3.pos),crArgEnt(TALLA_TIPO_SIMPLE),crArgPos(niv, $3.pos));
 			emite(EVA,crArgPos(sim.n, sim.d),crArgPos(niv, $3.pos),crArgPos(niv,$6.pos));
 		}
 	;
@@ -231,12 +249,12 @@ instruccionSeleccion
 		if ($3.t != T_ERROR)
 				if ($3.t != T_LOGICO) yyerror("La expresion de evaluacion del \"if\" debe ser de tipo logico.");
 		$<cent>$ = creaLans(si); 
-		emite(EIGUAL, crArgEnt($3.pos), crArgEnt(FALSE), crArgNul());
+		emite(EIGUAL, crArgPos(niv, $3.pos), crArgEnt(FALSE), crArgEtq(-1));
 	} 
 	instruccion 
 	{
 		$<cent>$ = creaLans(si); 
-		emite(GOTOS, crArgNul(), crArgNul(), crArgNul()); 
+		emite(GOTOS, crArgNul(), crArgNul(), crArgEtq(-1)); 
 		completaLans($<cent>5, crArgEtq(si));
 	}
 	ELSE_ instruccion
@@ -253,12 +271,12 @@ instruccionIteracion
 		expresion PCOMA_ 
 		{
 			$<cent>$ = creaLans(si);
-			emite(EIGUAL, crArgPos(niv, $6.pos), crArgEnt(0), crArgNul());
+			emite(EIGUAL, crArgPos(niv, $6.pos), crArgEnt(1), crArgEtq(-1));
 		
 		}
 		{
 			$<cent>$ = creaLans(si);
-			emite(GOTOS, crArgNul(),crArgNul(),crArgNul());
+			emite(GOTOS, crArgNul(),crArgNul(),crArgEtq(-1));
 		}
 		{
 			$<cent>$ = si;
@@ -267,13 +285,15 @@ instruccionIteracion
 		{
 			if ($6.t != T_ERROR)
 				if ($6.t != T_LOGICO) yyerror("La expresion de evaluacion del \"for\" debe ser de tipo logico.");
+				if ($3.tipo != T_LOGICO && $3.tipo != T_VACIO && $3.tipo != T_ENTERO){ yyerror("Error con los tipos del for.");
+              
 			emite(GOTOS, crArgNul(),crArgNul(),crArgEtq($<cent>5));
-			completaLans($<cent>9, crArgEtq(si));
+			completaLans($<cent>8, crArgEtq(si));
 		}
 	  CPAR_ instruccion 
 	  	{
 		  	emite(GOTOS, crArgNul(),crArgNul(),crArgEtq($<cent>10));
-			completaLans($<cent>8, crArgEtq(si));
+			completaLans($<cent>9, crArgEtq(si));
 	  	}
 	;
 
@@ -291,8 +311,9 @@ expresionOpcional
                     yyerror("No existe ninguna variable con ese identificador.");
                 }
             }
+			//$$.pos = creaVarTemp();
 			emite(EASIG, crArgPos(niv, $3.pos), crArgNul(), crArgPos(sim.n, sim.d));
-			emite(EASIG,crArgPos(sim.n, sim.d),crArgNul(),crArgPos(niv, $$.pos));
+			//emite(EASIG,crArgPos(sim.n, sim.d),crArgNul(),crArgPos(niv, $$.pos));
 		}
 	| { $$.t = T_VACIO; }
 	;
@@ -416,12 +437,15 @@ expresionUnaria
 			}                                                               
         } 
 		$$.pos=creaVarTemp();
-		if($1==EDIST){
+		if($1==SIG){
 			emite(EDIF,crArgEnt(1),crArgPos(niv, $2.pos),crArgPos(niv, $$.pos));
 		}
-		else if($1==EDIF){
-			emite(ESIG,crArgPos(niv, $2.pos),crArgNul(),crArgPos(niv, $$.pos));
-		}
+		// else if($1==EDIF){
+		// 	emite(ESIG,crArgPos(niv, $2.pos),crArgNul(),crArgPos(niv, $$.pos));
+		// }
+		else {
+                emite($1, crArgEnt(0), crArgPos(niv,$2.pos), crArgPos(niv,$$.pos));
+            }
     }
 	| operadorIncremento ID_
 	{
@@ -477,14 +501,11 @@ expresionSufija
 				DIM dim = obtTdA(sim.ref);
 				$$.t = dim.telem;
 			}
-			emite(EMULT,crArgPos(niv, $3.pos),crArgEnt(TALLA_TIPO_SIMPLE),crArgPos(niv, $3.pos));
+			//emite(EMULT,crArgPos(niv, $3.pos),crArgEnt(TALLA_TIPO_SIMPLE),crArgPos(niv, $3.pos));
 			$$.pos=creaVarTemp();
 			emite(EAV,crArgPos(sim.n, sim.d),crArgPos(niv, $3.pos),crArgPos(niv, $$.pos));
 		}
 	| ID_
-		{
-			$<cent>$ = creaVarTemp();
-		}
 		{
 			
 			SIMB sim = obtTdS($1);
@@ -514,8 +535,9 @@ expresionSufija
 			emite(CALL, crArgNul(), crArgNul(), crArgEnt(sim.d));
 			emite(EPOP, crArgNul(), crArgNul(), crArgEtq(si));
 			emite(DECTOP, crArgNul(), crArgNul(), crArgEnt(inf.tsp));
-			$$.pos = $<cent>2;
-			$$.t = $<cent>3;
+			$$.pos = creaVarTemp();
+        	emite(EPOP, crArgNul(), crArgNul(), crArgPos(niv, $$.pos));
+			$$.t = $<cent>2;
 		}
 	| ID_ 
 		{
@@ -528,11 +550,11 @@ expresionSufija
 				 $$.t = sim.t;
 			 }
 			$$.pos=creaVarTemp();
-			emite(EASIG,crArgPos(sim.n, sim.d),crArgNul(),crArgPos(niv, $$.pos));
+			emite(EASIG,crArgPos(niv, sim.d),crArgNul(),crArgPos(niv, $$.pos));
 		}
 	| constante {$$.t = $1.t;
 			$$.pos=creaVarTemp();
-			emite(EASIG,crArgPos(niv, $1.pos),crArgNul(),crArgPos(niv, $$.pos));}
+			emite(EASIG,crArgEnt($1.pos),crArgNul(),crArgPos(niv, $$.pos));}
 	;
 
 parametrosActuales
@@ -542,8 +564,10 @@ parametrosActuales
 
 
 listaParametrosActuales
-	: expresion {emite(EPUSH, crArgNul(), crArgNul(), crArgEnt($1.pos));}
-	| expresion COMA_ listaParametrosActuales {emite(EPUSH, crArgNul(), crArgNul(), crArgEnt($1.pos));}
+	: expresion {$$ = insTdD(-1,$1.tipo);
+		emite(EPUSH, crArgNul(), crArgNul(), crArgPos(niv, $1.pos));}
+	| expresion COMA_ listaParametrosActuales { $$ = insTdD($4,$1.tipo);
+	emite(EPUSH, crArgNul(), crArgNul(), crArgEnt($1.pos));}
 	;
 
 constante
@@ -588,7 +612,7 @@ operadorMultiplicativo
 operadorUnario 
 	: MAS_		{$$ = ESUM;} 
 	| MENOS_ 	{$$ = EDIF;}
-	| NEG_ 		{$$ = EDIST;}
+	| NEG_ 		{$$ = ESIG;}
 	;
 
 operadorIncremento
