@@ -300,7 +300,7 @@ expresionIgualdad
             if ($1.t != T_ERROR && $3.t != T_ERROR) {
                 if ($1.t != $3.t) {
                     yyerror("Incompatibilidad de tipos, no son el mismo tipo o no son equivalentes.");
-                } else if ($3.t != T_LOGICO || $3.t != T_ENTERO) { 
+                } else if ($3.t != T_LOGICO && $3.t != T_ENTERO) { 
                     yyerror("Incompatibilidad de tipos, deben ser expresiones logicas o de enteros.");
                 }  else {
                     $$.t = T_LOGICO;
