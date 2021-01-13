@@ -253,7 +253,7 @@ instruccionSeleccion
 		if ($3.t != T_ERROR)
 				if ($3.t != T_LOGICO) yyerror("La expresion de evaluacion del \"if\" debe ser de tipo logico.");
 		$<aux>$.valor = creaLans(si); 
-		emite(EIGUAL, crArgPos(niv, $3.pos), crArgEnt(FALSE), crArgEtq(-1));
+		emite(EIGUAL, crArgPos(niv, $3.pos), crArgEnt(0), crArgEtq(-1));
 	} 
 	instruccion 
 	{
@@ -298,7 +298,7 @@ instruccionIteracion
 	;
 
 expresionOpcional 
-	: expresion { { $$ = $1; }}
+	: expresion {  $$ = $1; }
 	| ID_ IGUAL_ expresion 
 		{
             $$.t = T_ERROR;
@@ -319,7 +319,7 @@ expresionOpcional
 	;
 
 expresion 
-	: expresionIgualdad  { { $$ = $1; }}
+	: expresionIgualdad  { $$ = $1; }
 	| expresion operadorLogico expresionIgualdad
 		{
 			$$.t = T_ERROR;
@@ -334,7 +334,7 @@ expresion
 			emite($2,crArgPos(niv, $1.pos),crArgPos(niv, $3.pos),crArgPos(niv, $$.pos));
 			if ($2 == ESUM) {
 				emite(EMENEQ,crArgPos(niv, $$.pos),crArgEnt(1),crArgEtq(si+2));
-				emite(EASIG,crArgEnt(TRUE),crArgNul(),crArgPos(niv, $$.pos));
+				emite(EASIG,crArgEnt(1),crArgNul(),crArgPos(niv, $$.pos));
 			}
 		}
 	;
@@ -355,14 +355,14 @@ expresionIgualdad
                 }
             } 
 			$$.pos=creaVarTemp();
-			emite(EASIG,crArgEnt(TRUE),crArgNul(),crArgPos(niv, $$.pos));
+			emite(EASIG,crArgEnt(1),crArgNul(),crArgPos(niv, $$.pos));
 			emite($2,crArgPos(niv, $1.pos),crArgPos(niv, $3.pos),crArgEtq(si+2));
-			emite(EASIG,crArgEnt(FALSE),crArgNul(),crArgPos(niv, $$.pos));
+			emite(EASIG,crArgEnt(0),crArgNul(),crArgPos(niv, $$.pos));
 		}
 	;
 
 expresionRelacional 
-	: expresionAditiva { { $$ = $1; }}
+	: expresionAditiva {  $$ = $1; }
 	| expresionRelacional operadorRelacional expresionAditiva
 		{
             $$.t = T_ERROR;
@@ -374,14 +374,14 @@ expresionRelacional
 				}
 			}
 			$$.pos=creaVarTemp();
-			emite(EASIG,crArgEnt(TRUE),crArgNul(),crArgPos(niv, $$.pos));
+			emite(EASIG,crArgEnt(1),crArgNul(),crArgPos(niv, $$.pos));
 			emite($2,crArgPos(niv, $1.pos),crArgPos(niv, $3.pos),crArgEtq(si+2));
-			emite(EASIG,crArgEnt(FALSE),crArgNul(),crArgPos(niv, $$.pos));
+			emite(EASIG,crArgEnt(0),crArgNul(),crArgPos(niv, $$.pos));
 		}
 	;
 
 expresionAditiva 
-	: expresionMultiplicativa {  { $$ = $1; }}
+	: expresionMultiplicativa {   $$ = $1; }
 	| expresionAditiva operadorAditivo expresionMultiplicativa
 	{
         $$.t = T_ERROR;
@@ -398,7 +398,7 @@ expresionAditiva
 	;
 
 expresionMultiplicativa 
-	: expresionUnaria { { $$ = $1; }}
+	: expresionUnaria {  $$ = $1; }
 	| expresionMultiplicativa operadorMultiplicativo expresionUnaria
 		{
             $$.t = T_ERROR;
@@ -415,7 +415,7 @@ expresionMultiplicativa
 	;
 
 expresionUnaria 
-	: expresionSufija {  { $$ = $1; } }
+	: expresionSufija {   $$ = $1;  }
 	| operadorUnario expresionUnaria
 	{  
         $$.t = T_ERROR;
@@ -466,7 +466,7 @@ expresionUnaria
 	;
 
 expresionSufija
-	: APAR_ expresion CPAR_ {  { $$ = $2; } }
+	: APAR_ expresion CPAR_ {   $$ = $2; }
 	| ID_ operadorIncremento
 		{
 			SIMB sim = obtTdS($1);
@@ -562,14 +562,11 @@ listaParametrosActuales
 
 constante
 	: CTE_   {$$.t = T_ENTERO;
-			$$.pos=creaVarTemp();
-			emite(EASIG,crArgEnt($1),crArgNul(),crArgPos(niv, $$.pos));}
+			$$.pos=$1;}
 	| TRUE_  {$$.t = T_LOGICO;
-			$$.pos=creaVarTemp();
-			emite(EASIG,crArgEnt(TRUE),crArgNul(),crArgPos(niv, $$.pos));}
+			$$.pos=1;}
 	| FALSE_ {$$.t = T_LOGICO;
-			$$.pos=creaVarTemp();
-			emite(EASIG,crArgEnt(FALSE),crArgNul(),crArgPos(niv, $$.pos));}
+			$$.pos=0;}
 	;
 
 operadorLogico
