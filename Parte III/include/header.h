@@ -13,12 +13,6 @@
 #define TALLA_SEGENLACES 2      /* Talla del segmento de Enlaces de Control */
 
 
-#define OP_NOT 29
-#define OP_INCR 30
-#define OP_DECR 31
-#define OP_OR 32
-#define OP_AND 33
-
 typedef struct lista{
     int ref;
     int talla;
@@ -27,6 +21,13 @@ typedef struct texp{
    int t;           
    int pos;       
 } Expresion;
+typedef struct aux{
+    int valor;
+    int ref1;
+    int ref2; 
+    int ref3;
+    int ref4;
+} AUX;
 
 /************************************* Variables externas definidas en el AL */
 extern int yylex();
