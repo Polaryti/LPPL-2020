@@ -36,13 +36,13 @@ programa
     ;
 
 listaDeclaraciones    
-	: declaracion 
-	|listaDeclaraciones declaracion
+	: declaracion { $$ = $1; }
+	|listaDeclaraciones declaracion { $$ = $1 + $2; }
     ;
 
 declaracion   
-	: declaracionVariable
-	| declaracionFuncion 
+	: declaracionVariable { $$ = 0; }
+	| declaracionFuncion { $$ = $1; }
     ;
 
 declaracionVariable    
@@ -203,9 +203,7 @@ instruccionAsignacion
                 }                      
             }
 			emite(EMULT,crArgPos(niv, $3.pos),crArgEnt(TALLA_TIPO_SIMPLE),crArgPos(niv, $3.pos));
-			$$.pos=creaVarTemp();
 			emite(EVA,crArgPos(niv, sim.d),crArgPos(niv, $3.pos),crArgPos(niv,$6.pos));
-			emite(EAV,crArgPos(niv, sim.d),crArgPos(niv, $3.pos),crArgPos(niv, $$.pos));
 		}
 	;
 
@@ -233,7 +231,7 @@ instruccionSeleccion
 		if ($3.t != T_ERROR)
 				if ($3.t != T_LOGICO) yyerror("La expresion de evaluacion del \"if\" debe ser de tipo logico.");
 		$<cent>$ = creaLans(si); 
-		emite(EIGUAL, crArgEnt($3.pos), crArgEnt(False), crArgEtq(-1));
+		emite(EIGUAL, crArgEnt($3.pos), crArgEnt(FALSE), crArgEtq(-1));
 	} 
 	instruccion 
 	{
