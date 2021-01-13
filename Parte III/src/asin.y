@@ -17,12 +17,13 @@
 %token APAR_ CPAR_ ALLAVE_ CLLAVE_ ACLAU_ CCLAU_ PCOMA_ COMA_
 %token PRINT_ RETURN_ FOR_ IF_ ELSE_ READ_ 
 
-%token <cent>  CTE_
+%token <cent>  CTE_ 
 %token <ident> ID_
-%type  <lista> listaParametrosFormales parametrosFormales
-%type  <cent>  tipoSimple operadorIncremento operadorUnario operadorMultiplicativo
+%type  <lista> listaParametrosFormales parametrosFormales%type  <cent>  tipoSimple operadorIncremento operadorUnario operadorMultiplicativo
 			   operadorAditivo operadorRelacional operadorIgualdad  operadorLogico 
 			   listaDeclaraciones declaracion declaracionFuncion cabeceraFuncion
+
+%type  <cent>  listaParametrosActuales parametrosActuales
             
 %type  <texp>  expresionOpcional expresion expresionIgualdad expresionRelacional 
 			   expresionAditiva expresionMultiplicativa expresionUnaria expresionSufija
@@ -31,8 +32,8 @@
 %%
 programa 
 	: { 
-		dvar=0; niv = GLOBAL; si =0; cargaContexto(niv);
-		$<list>$.ref = creaLans(si);
+		dvar=0; niv = 0; si =0; cargaContexto(niv);
+		$<lista>$.ref = creaLans(si);
        	emite(INCTOP, crArgNul(), crArgNul(), crArgEnt(-1));
 		$<lista>$.talla = creaLans(si);
         emite(GOTOS, crArgNul(), crArgNul(), crArgEtq(-1));
@@ -40,12 +41,12 @@ programa
 	listaDeclaraciones
 	{ 
 		if($2 != -1) {
-			yyerror(ERROR_NO_HAY_MAIN);
+			yyerror("No se ha encontrado el main.");
 		}
 		completaLans($<lista>1.ref, crArgEnt(dvar));
 		if(verTdS) mostrarTdS();
 		SIMB sim = obtTdS("main");
-       	completaLans($<list>1.b, crArgEtq(sim.d));
+       	completaLans($<lista>1.b, crArgEtq(sim.d));
 		//if(verTdS) mostrarTdS();
 	} 
     
@@ -285,7 +286,7 @@ instruccionIteracion
 		{
 			if ($6.t != T_ERROR){
 				if ($6.t != T_LOGICO) yyerror("La expresion de evaluacion del \"for\" debe ser de tipo logico.");
-				if ($3.tipo != T_LOGICO && $3.tipo != T_VACIO && $3.tipo != T_ENTERO) yyerror("Error con los tipos del for.");
+				if ($3.t != T_LOGICO && $3.t != T_VACIO && $3.t != T_ENTERO) yyerror("Error con los tipos del for.");
 			}
 			emite(GOTOS, crArgNul(),crArgNul(),crArgEtq($<cent>5));
 			completaLans($<cent>8, crArgEtq(si));
@@ -437,7 +438,7 @@ expresionUnaria
 			}                                                               
         } 
 		$$.pos=creaVarTemp();
-		if($1==SIG){
+		if($1==ESIG){
 			emite(EDIF,crArgEnt(1),crArgPos(niv, $2.pos),crArgPos(niv, $$.pos));
 		}
 		// else if($1==EDIF){
@@ -564,9 +565,9 @@ parametrosActuales
 
 
 listaParametrosActuales
-	: expresion {$$.ref = insTdD(-1,$1.tipo);
+	: expresion {$$ = insTdD(-1,$1.t);
 		emite(EPUSH, crArgNul(), crArgNul(), crArgPos(niv, $1.pos));}
-	| expresion COMA_ listaParametrosActuales { $$.ref = insTdD($3,$1.tipo);
+	| expresion COMA_ listaParametrosActuales { $$ = insTdD($3,$1.t);
 	emite(EPUSH, crArgNul(), crArgNul(), crArgEnt($1.pos));}
 	;
 
