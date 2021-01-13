@@ -273,7 +273,6 @@ instruccionIteracion
 		expresion PCOMA_ 
 		{
 			if ($6.t != T_ERROR){
-				if ($6.t != T_LOGICO) yyerror("La expresion de evaluacion del \"for\" debe ser de tipo logico.");
 				if ($3.t != T_LOGICO && $3.t != T_VACIO && $3.t != T_ENTERO) yyerror("Error con los tipos del for.");
 			}
 			$<aux>$.ref1 = creaLans(si);                              // TRUE
