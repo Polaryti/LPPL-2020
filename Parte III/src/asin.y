@@ -44,9 +44,9 @@ programa
 			yyerror("No se ha encontrado el main.");
 		}
 		completaLans($<lista>1.ref, crArgEnt(dvar));
-		if(verTdS) mostrarTdS();
 		SIMB sim = obtTdS("main");
-       	completaLans($<lista>1.talla, crArgEtq(sim.d));
+		$<cent>$ = sim.d;
+       	completaLans($<lista>1.talla, crArgEtq($<cent>$));
 		//if(verTdS) mostrarTdS();
 	} 
     
