@@ -203,7 +203,9 @@ instruccionAsignacion
                 }                      
             }
 			emite(EMULT,crArgPos(niv, $3.pos),crArgEnt(TALLA_TIPO_SIMPLE),crArgPos(niv, $3.pos));
+			$$.pos=creaVarTemp();
 			emite(EVA,crArgPos(niv, sim.d),crArgPos(niv, $3.pos),crArgPos(niv,$6.pos));
+			emite(EAV,crArgPos(niv, sim.d),crArgPos(niv, $3.pos),crArgPos(niv, $$.pos));
 		}
 	;
 
@@ -270,7 +272,7 @@ instruccionIteracion
 	;
 
 expresionOpcional 
-	: expresion { $$.t = $1.t; $$.pos = $1.pos; }
+	: expresion { { $$ = $1; }}
 	| ID_ IGUAL_ expresion 
 		{
             $$.t = T_ERROR;
@@ -290,7 +292,7 @@ expresionOpcional
 	;
 
 expresion 
-	: expresionIgualdad  {$$.t = $1.t; $$.pos = $1.pos;}
+	: expresionIgualdad  { { $$ = $1; }}
 	| expresion operadorLogico expresionIgualdad
 		{
 			$$.t = T_ERROR;
@@ -304,14 +306,14 @@ expresion
 			$$.pos=creaVarTemp();
 			emite($2,crArgPos(niv, $1.pos),crArgPos(niv, $3.pos),crArgPos(niv, $$.pos));
 			if ($2 == ESUM) {
-				emite(EMENEQ,crArgPos($$.pos),crArgEnt(1),crArgEtq(si+2));
-				emite(EASIG,crArgEnt(TRUE),crArgNul(),crArgPos($$.pos));
+				emite(EMENEQ,crArgPos(niv, $$.pos),crArgEnt(1),crArgEtq(si+2));
+				emite(EASIG,crArgEnt(TRUE),crArgNul(),crArgPos(niv, $$.pos));
 			}
 		}
 	;
 
 expresionIgualdad 
-	: expresionRelacional { $$.t = $1.t; $$.pos = $1.pos;}
+	: expresionRelacional { $$ = $1; }
 	| expresionIgualdad operadorIgualdad expresionRelacional
 		{	
 			$$.t = T_ERROR;
@@ -333,7 +335,7 @@ expresionIgualdad
 	;
 
 expresionRelacional 
-	: expresionAditiva {$$.t = $1.t; $$.pos = $1.pos;}
+	: expresionAditiva { { $$ = $1; }}
 	| expresionRelacional operadorRelacional expresionAditiva
 		{
             $$.t = T_ERROR;
@@ -352,7 +354,7 @@ expresionRelacional
 	;
 
 expresionAditiva 
-	: expresionMultiplicativa { $$.t = $1.t; $$.pos = $1.pos;}
+	: expresionMultiplicativa {  { $$ = $1; }}
 	| expresionAditiva operadorAditivo expresionMultiplicativa
 	{
         $$.t = T_ERROR;
@@ -369,7 +371,7 @@ expresionAditiva
 	;
 
 expresionMultiplicativa 
-	: expresionUnaria {$$.t = $1.t; $$.pos = $1.pos;}
+	: expresionUnaria { { $$ = $1; }}
 	| expresionMultiplicativa operadorMultiplicativo expresionUnaria
 		{
             $$.t = T_ERROR;
@@ -386,7 +388,7 @@ expresionMultiplicativa
 	;
 
 expresionUnaria 
-	: expresionSufija { $$.t = $1.t; $$.pos = $1.pos; }
+	: expresionSufija {  { $$ = $1; } }
 	| operadorUnario expresionUnaria
 	{  
         $$.t = T_ERROR;
@@ -437,7 +439,7 @@ expresionUnaria
 	;
 
 expresionSufija
-	: APAR_ expresion CPAR_ {$$.t = $2.t; $$.pos = $2.pos; }
+	: APAR_ expresion CPAR_ {  { $$ = $2; } }
 	| ID_ operadorIncremento
 		{
 			SIMB sim = obtTdS($1);
@@ -502,9 +504,9 @@ expresionSufija
 		{   
 			SIMB sim = obtTdS($1);
 			INF inf = obtTdD(sim.ref);
-			emite(PUSH, crArgNul(), crArgNul(), crArgEnt(dvar));
+			emite(EPUSH, crArgNul(), crArgNul(), crArgEnt(dvar));
 			emite(CALL, crArgNul(), crArgNul(), crArgEnt(sim.d));
-			emite(POP, crArgNul(), crArgNul(), crArgEnt(dvar));
+			emite(EPOP, crArgNul(), crArgNul(), crArgEnt(dvar));
 			emite(INCTOP, crArgNul(), crArgNul(), crArgEnt(-inf.tsp));
 			$$.pos = $<cent>2;
 			$$.t = $<cent>3;
