@@ -513,7 +513,7 @@ expresionSufija
 			emite(EPUSH, crArgNul(), crArgNul(), crArgEnt(dvar));
 			emite(CALL, crArgNul(), crArgNul(), crArgEnt(sim.d));
 			emite(EPOP, crArgNul(), crArgNul(), crArgEnt(dvar));
-			emite(INCTOP, crArgNul(), crArgNul(), crArgEnt(-inf.tsp));
+			emite(DECTOP, crArgNul(), crArgNul(), crArgEnt(inf.tsp));
 			$$.pos = $<cent>2;
 			$$.t = $<cent>3;
 		}
