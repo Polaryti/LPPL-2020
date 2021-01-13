@@ -30,7 +30,7 @@
 
 %%
 programa 
-	: { dvar=0; niv = 0; si=0;}
+	: { dvar=0; niv = 0; cargaContexto(); }
 	listaDeclaraciones
 	{ if(verTdS) mostrarTdS(); } 
     ;
