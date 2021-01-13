@@ -256,7 +256,7 @@ instruccionIteracion
 	;
 
 expresionOpcional 
-	: expresion { $$ = $1; }
+	: expresion { $$.t = $1.t; $$.pos = $1.pos; }
 	| ID_ IGUAL_ expresion 
 		{
             $$.t = T_ERROR;
@@ -275,7 +275,7 @@ expresionOpcional
 	;
 
 expresion 
-	: expresionIgualdad  {$$ = $1;}
+	: expresionIgualdad  {$$.t = $1.t; $$.pos = $1.pos;}
 	| expresion operadorLogico expresionIgualdad
 		{
 			$$.t = T_ERROR;
@@ -292,7 +292,7 @@ expresion
 	;
 
 expresionIgualdad 
-	: expresionRelacional { $$ = $1;}
+	: expresionRelacional { $$.t = $1.t; $$.pos = $1.pos;}
 	| expresionIgualdad operadorIgualdad expresionRelacional
 		{	
 			$$.t = T_ERROR;
@@ -314,7 +314,7 @@ expresionIgualdad
 	;
 
 expresionRelacional 
-	: expresionAditiva {$$ = $1;}
+	: expresionAditiva {$$.t = $1.t; $$.pos = $1.pos;}
 	| expresionRelacional operadorRelacional expresionAditiva
 		{
             $$.t = T_ERROR;
@@ -333,7 +333,7 @@ expresionRelacional
 	;
 
 expresionAditiva 
-	: expresionMultiplicativa { $$ = $1;}
+	: expresionMultiplicativa { $$.t = $1.t; $$.pos = $1.pos;}
 	| expresionAditiva operadorAditivo expresionMultiplicativa
 	{
         $$.t = T_ERROR;
@@ -350,7 +350,7 @@ expresionAditiva
 	;
 
 expresionMultiplicativa 
-	: expresionUnaria {$$ = $1;}
+	: expresionUnaria {$$.t = $1.t; $$.pos = $1.pos;}
 	| expresionMultiplicativa operadorMultiplicativo expresionUnaria
 		{
             $$.t = T_ERROR;
@@ -367,7 +367,7 @@ expresionMultiplicativa
 	;
 
 expresionUnaria 
-	: expresionSufija { $$ = $1; }
+	: expresionSufija { $$.t = $1.t; $$.pos = $1.pos; }
 	| operadorUnario expresionUnaria
 	{  
         $$.t = T_ERROR;
