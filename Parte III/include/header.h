@@ -23,7 +23,10 @@ typedef struct lista{
     int ref;
     int talla;
 } Lista;
-
+typedef struct arg{
+   int talla;       // talla
+   int ref;         // valor
+} Argumento;
 typedef struct texp{
    int t;           
    int pos;       

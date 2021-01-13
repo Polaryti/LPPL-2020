@@ -11,6 +11,7 @@
 	char *ident;
 	Lista lista;
 	Expresion texp;
+	Argumento arg;
 }
 %token MAS_ DMAS_ MENOS_ DMENOS_ POR_ DIV_ IGUAL_ INT_ BOOL_
 %token TRUE_ FALSE_ MAY_ MEN_ MAYIG_ MENIG_ DIGUAL_ DIF_ NEG_ AND_ OR_
@@ -23,7 +24,8 @@
 %type  <cent>  tipoSimple operadorIncremento operadorUnario operadorMultiplicativo
 			   operadorAditivo operadorRelacional operadorIgualdad  operadorLogico 
 			   listaDeclaraciones declaracion declaracionFuncion cabeceraFuncion
-
+            
+%type<arg> listaParametrosFormales parametrosFormales
 %type  <texp>  expresionOpcional expresion expresionIgualdad expresionRelacional 
 			   expresionAditiva expresionMultiplicativa expresionUnaria expresionSufija
                constante
@@ -155,7 +157,7 @@ bloque
 	{ 
 		INF inf = obtTdD(-1);
 		if (inf.t != T_ERROR) {
-			if (inf.t != $5.t) {
+			if (inf.t != $6.t) {
 				yyerror("Incompatibilidad de tipos, no son el mismo tipo o no son equivalentes."); 
 			}     
 		}
@@ -283,10 +285,10 @@ instruccionIteracion
 		}
 		expresionOpcional 
 		{
-			if ($6.t != T_ERROR)
+			if ($6.t != T_ERROR){
 				if ($6.t != T_LOGICO) yyerror("La expresion de evaluacion del \"for\" debe ser de tipo logico.");
-				if ($3.tipo != T_LOGICO && $3.tipo != T_VACIO && $3.tipo != T_ENTERO){ yyerror("Error con los tipos del for.");
-              
+				if ($3.tipo != T_LOGICO && $3.tipo != T_VACIO && $3.tipo != T_ENTERO) yyerror("Error con los tipos del for.");
+			}
 			emite(GOTOS, crArgNul(),crArgNul(),crArgEtq($<cent>5));
 			completaLans($<cent>8, crArgEtq(si));
 		}
@@ -566,7 +568,7 @@ parametrosActuales
 listaParametrosActuales
 	: expresion {$$ = insTdD(-1,$1.tipo);
 		emite(EPUSH, crArgNul(), crArgNul(), crArgPos(niv, $1.pos));}
-	| expresion COMA_ listaParametrosActuales { $$ = insTdD($4,$1.tipo);
+	| expresion COMA_ listaParametrosActuales { $$ = insTdD($3,$1.tipo);
 	emite(EPUSH, crArgNul(), crArgNul(), crArgEnt($1.pos));}
 	;
 
