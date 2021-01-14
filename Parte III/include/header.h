@@ -5,30 +5,36 @@
 /*****************************************************************************/
 #ifndef _HEADER_H
 #define _HEADER_H
+#define TALLA_TIPO_SIMPLE 1
+#define TALLA_SEGENLACES 2
 
-/****************************************************** Constantes generales */
+/****************************************************** Constantes generales 
 #define TRUE  1
 #define FALSE 0
-#define TALLA_TIPO_SIMPLE 1     /* Talla asociada a los tipos simples */
-#define TALLA_SEGENLACES 2      /* Talla del segmento de Enlaces de Control */
+#define CTE 2
+#define INT 3
+#define BOOL 4
+******************************************************** Oeradores unarios  */
 
+
+/******************************************************* Estructuras de datos */
+typedef struct texp{
+   int tipo;        
+   int pos;
+} Expresion;
 
 typedef struct lista{
-    int ref;
-    int talla;
+   int talla;       // talla
+   int ref;         // valor
 } Lista;
-typedef struct texp{
-   int t;           
-   int pos;       
-} Expresion;
-typedef struct aux{
-    int valor;
-    int ref1;
-    int ref2; 
-    int ref3;
-    int ref4;
-} AUX;
 
+typedef struct aux{
+   int valor;
+   int ref1;
+   int ref2; 
+   int ref3;
+   int ref4;
+} AUX;
 /************************************* Variables externas definidas en el AL */
 extern int yylex();
 extern int yyparse();
@@ -36,16 +42,15 @@ extern int yyparse();
 extern FILE *yyin;                           /* Fichero de entrada           */
 extern int   yylineno;                       /* Contador del numero de linea */
 extern char *yytext;                         /* Patron detectado             */
-
 /********* Funciones y variables externas definidas en el Programa Principal */
-extern void yyerror(const char * msg) ;     /* Tratamiento de errores          */
+extern void yyerror(const char * msg) ;   /* Tratamiento de errores          */
 
-extern int verbosidad;                      /* Flag si se desea una traza       */
-extern int numErrores;                      /* Contador del numero de errores        */
-extern int verTdS;                          /* Flag para saber si mostrar la TdS */
+extern int verTdS;
+extern int dvar;
+extern int niv;
 
-extern int dvar;                            /* Desplazamiento en el Segmento de Variables */
-extern int niv;                             /* Nivel de anidamiento "global" o "local" */
+extern int verbosidad;                   /* Flag si se desea una traza       */
+extern int numErrores;              /* Contador del numero de errores        */
 
 extern int si;
 
