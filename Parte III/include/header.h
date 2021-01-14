@@ -8,13 +8,13 @@
 #define TALLA_TIPO_SIMPLE 1
 #define TALLA_SEGENLACES 2
 
-/****************************************************** Constantes generales 
+/****************************************************** Constantes generales */
 #define TRUE  1
 #define FALSE 0
 #define CTE 2
 #define INT 3
 #define BOOL 4
-******************************************************** Oeradores unarios  */
+/******************************************************** Oeradores unarios  */
 
 
 /******************************************************* Estructuras de datos */
