@@ -24,8 +24,8 @@ typedef struct texp{
 } Expresion;
 
 typedef struct lista{
-   int talla;       // talla
-   int ref;         // valor
+   int talla;       
+   int ref;  
 } Lista;
 
 typedef struct aux{

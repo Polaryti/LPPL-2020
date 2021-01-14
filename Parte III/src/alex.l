@@ -50,20 +50,20 @@ comentario	"//".*
 ","             { retornar (COMA_) ; }
 ">"             { retornar (MAY_) ; }
 "<"             { retornar (MEN_) ; }
-">="             { retornar (MAYIG_) ; }
-"<="             { retornar (MENIG_) ; }
+">="            { retornar (MAYIG_) ; }
+"<="            { retornar (MENIG_) ; }
 "for"           { retornar (FOR_) ; }
 "if"            { retornar (IF_) ; }
 "else"          { retornar (ELSE_) ; }
 "read"          { retornar (READ_) ; }
 "print"         { retornar (PRINT_) ; }
-"return"    { retornar (RETURN_) ; }
-"int"         { retornar (INT_) ; }
-"bool"         { retornar (BOOL_) ; }
-"true"         { retornar (TRUE_) ; }
+"return"        { retornar (RETURN_) ; }
+"int"           { retornar (INT_) ; }
+"bool"          { retornar (BOOL_) ; }
+"true"          { retornar (TRUE_) ; }
 "false"         { retornar (FALSE_) ; }
-{id}             { yylval.ident = strdup(yytext); retornar(ID_); }
-{cte}        	 { yylval.cent = atoi(yytext); retornar(CTE_); }
+{id}            { yylval.ident = strdup(yytext); retornar(ID_); }
+{cte}        	{ yylval.cent = atoi(yytext); retornar(CTE_); }
 {comentario}	{ if (verbosidad) ECHO ; }
 .		        { yyerror("Caracter desconocido") ;}
 %%
