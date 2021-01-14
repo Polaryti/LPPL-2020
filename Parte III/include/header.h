@@ -1,8 +1,3 @@
-/*****************************************************************************/
-/**   Ejemplo de un posible fichero de cabeceras donde situar las           **/
-/** definiciones de constantes, variables y estructuras para MenosC.        **/
-/** Los alumos deberan adaptarlo al desarrollo de su propio compilador.     **/
-/*****************************************************************************/
 #ifndef _HEADER_H
 #define _HEADER_H
 #define TALLA_TIPO_SIMPLE 1

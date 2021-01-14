@@ -11,23 +11,18 @@
 %}
 
 %union {
-    char *ident;            /* Para el terminal "identificador" */
-    int cent;               /* Para los no-terminales con atributo simple */
-    Expresion texp;         /* Para los no terminales con expresion */
-    Lista lista;            /* Para los argumentos" */
-    AUX aux;                /* Para GCI */
+    char *ident;            
+    int cent;               
+    Expresion texp;        
+    Lista lista;            
+    AUX aux;             
 }
 %token  
-/*****************************************************************************/
 FALSE_ TRUE_ BOOL_ INT_ IF_ ELSE_ FOR_ READ_ PRINT_ RETURN_
-/*****************************************************************************/
 IGUAL_ MAS_ DMAS_ MENOS_ DMENOS_ POR_ DIV_ DIF_ AND_ OR_ NEG_
-/*****************************************************************************/
 MEN_ MAY_ DIGUAL_ MENIG_ MAYIG_ 
-/*****************************************************************************/
 ALLAVE_ CLLAVE_ ACLAU_ CCLAU_ APAR_ CPAR_ PCOMA_ COMA_
-/*****************************************************************************/
-/*****************************************************************************/ 
+
 %token<ident> ID_
 %token<cent> CTE_
 %type<cent> listaDeclaraciones declaracion tipoSimple
