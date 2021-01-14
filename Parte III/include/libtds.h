@@ -21,7 +21,7 @@
 
 typedef struct simb /******************************** Estructura para la TdS */
 {
-  int   t;               /* Tipo del objeto                                  */
+  int   tipo;               /* Tipo del objeto                                  */
   int   n;               /* Nivel "global" o "local"                         */
   int   d;               /* Desplazamiento relativo en el segmento variables */
   int   ref;             /* Campo de referencia de usos multiples            */
@@ -34,7 +34,7 @@ typedef struct dim  /* Estructura para la informacion obtenida de la TDArray */
 typedef struct inf  /* Estructura para las funciones                         */
 {
   char *nom;                             /* Nombre de la funcion             */
-  int   t;                            /* Tipo del rango de la funcion     */
+  int   tipo;                            /* Tipo del rango de la funcion     */
   int   tsp;                             /* Talla del segmento de parametros */
 }INF;
 
