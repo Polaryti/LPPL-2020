@@ -188,14 +188,14 @@ instruccionAsignacion:
         {
             SIMB sim = obtTdS($1);
             if(sim.t != T_ARRAY){ yyerror("No es de tipo array"); } 
-            else{ DIM di = obtTdA(sim.ref);
+            else{ DIM dim = obtTdA(sim.ref);
             
             if($3.tipo != T_ERROR && $6.tipo != T_ERROR){                    
                 if (sim.t == T_ERROR) yyerror("Error al declarar la variable.");                                          // 1 - el array ID ha sido declarado 
                 else if (! (sim.t == T_ARRAY))  yyerror("Tipos de las variables incorrecto.");                                           // 2 - el objeto ID no es un array
                 else if (! ($3.tipo == T_ENTERO))  yyerror("El numero de elemento del array no es un entero");    // 3 - el indice para acceder al array no es de tipo entero
-                else if (! ($6.tipo == di.telem)) { yyerror("Tipos de las variables incorrecto."); }                                     // 4 - el tipo de los objetos del array no coincide con la expresi�n a asignar
-                //else if (! ($3.valor < di.nelem)) yyerror("Error en el indice que accede al array (fuera de rango)");  // 5 - el indice del array accede a una posicion incorrecta
+                else if (! ($6.tipo == dim.telem)) { yyerror("Tipos de las variables incorrecto."); }                                     // 4 - el tipo de los objetos del array no coincide con la expresi�n a asignar
+                //else if (! ($3.valor < dim.nelem)) yyerror("Error en el indice que accede al array (fuera de rango)");  // 5 - el indice del array accede a una posicion incorrecta
             }
             }
                         emite(EVA, crArgPos(sim.n, sim.d) , crArgPos(niv, $3.pos), crArgPos(niv, $6.pos));
@@ -228,23 +228,23 @@ instruccionSeleccion:
           if ($3.tipo != T_ERROR) {
               if ($3.tipo != T_LOGICO){ yyerror("Tipos de las variables incorrecto.");}    // expresion debe de ser de tipo logico
           }
-          $<aux>$.cent = creaLans(si);  
+          $<aux>$.valor = creaLans(si);  
           emite(EIGUAL,crArgPos( niv , $3.pos ),crArgEnt(0),crArgEtq(-1));  //if expresion false (=0) va a else
       }
 
       instruccion {
-          $<aux>$.cent = creaLans(si); 
+          $<aux>$.valor = creaLans(si); 
           emite(GOTOS,crArgNul(),crArgNul(),crArgEtq(-1));  
-          completaLans($<aux>5.cent,crArgEtq(si));
+          completaLans($<aux>5.valor,crArgEtq(si));
           } 
 
-      ELSE_ instruccion {completaLans($<aux>7.cent,crArgEtq(si));}    
+      ELSE_ instruccion {completaLans($<aux>7.valor,crArgEtq(si));}    
     ;
 /*****************************************************************************/
 instruccionIteracion:
       FOR_ APAR_ expresionOpcional PCOMA_ // for ( i = 1; i < t;i++)
       {
-       $<aux>$.cent = si; 
+       $<aux>$.valor = si; 
       } 
       expresion PCOMA_      
       
@@ -253,20 +253,20 @@ instruccionIteracion:
               if ($3.tipo != T_LOGICO && $3.tipo != T_VACIO && $3.tipo != T_ENTERO){ yyerror("Tipos de las variables incorrecto.");
               }
           }
-          $<aux>$.a = creaLans(si);                              // TRUE
+          $<aux>$.ref1 = creaLans(si);                              // TRUE
           emite(EIGUAL,crArgPos( niv , $6.pos ),crArgEnt(1),crArgEtq(-1) );
-          $<aux>$.b = creaLans(si);                              //FALSE
+          $<aux>$.ref2 = creaLans(si);                              //FALSE
           emite(GOTOS,crArgNul(),crArgNul(),crArgEtq(-1));
-          $<aux>$.c = si;    
+          $<aux>$.ref3 = si;    
       }
       
       expresionOpcional CPAR_ {
-          emite(GOTOS, crArgNul(), crArgNul(), crArgEtq($<aux>5.cent) ); 
-          completaLans($<aux>8.a,crArgEtq(si));
+          emite(GOTOS, crArgNul(), crArgNul(), crArgEtq($<aux>5.valor) ); 
+          completaLans($<aux>8.ref1,crArgEtq(si));
       } 
       instruccion {
-          emite(GOTOS, crArgNul(), crArgNul(), crArgEtq($<aux>8.c) ); 
-          completaLans($<aux>8.b,crArgEtq(si));
+          emite(GOTOS, crArgNul(), crArgNul(), crArgEtq($<aux>8.ref3) ); 
+          completaLans($<aux>8.ref2,crArgEtq(si));
       }              
 
     ;
@@ -412,41 +412,41 @@ expresionUnaria:
         } 
     }
     | operadorIncremento ID_   // ++i | --i
-    {   SIMB simb = obtTdS($2);
+    {   SIMB sim = obtTdS($2);
         $$.tipo = T_ERROR;
-        if (simb.t == T_ERROR) {yyerror("Error al declarar la variable.");}                                         // 1 - La variable(ID) no esta definida
-        else if (simb.t != T_ENTERO){yyerror("Error no se puede incrementar una variable no entera");}          // 2 - La variable(ID) no es entera y por tanto no se puede icrementar
-        else {$$.tipo = simb.t;}
+        if (sim.t == T_ERROR) {yyerror("Error al declarar la variable.");}                                         // 1 - La variable(ID) no esta definida
+        else if (sim.t != T_ENTERO){yyerror("Error no se puede incrementar una variable no entera");}          // 2 - La variable(ID) no es entera y por tanto no se puede icrementar
+        else {$$.tipo = sim.t;}
         $$.pos = creaVarTemp();
-        emite($1, crArgPos(simb.n,simb.d), crArgEnt(1), crArgPos(simb.n,simb.d));
-        emite(EASIG, crArgPos(simb.n,simb.d), crArgNul(), crArgPos(niv,$$.pos));
+        emite($1, crArgPos(sim.n,sim.d), crArgEnt(1), crArgPos(sim.n,sim.d));
+        emite(EASIG, crArgPos(sim.n,sim.d), crArgNul(), crArgPos(niv,$$.pos));
     }
     ;
 /*****************************************************************************/
 expresionSufija:
       APAR_ expresion CPAR_ { $$.tipo = $2.tipo; $$.pos = $2.pos;}
     | ID_ operadorIncremento   // i++ | i--
-    {   SIMB simb = obtTdS($1);
+    {   SIMB sim = obtTdS($1);
         $$.tipo = T_ERROR;
-        if (simb.t == T_ERROR){ yyerror("Error al declarar la variable."); }                                  // 1 - La variable (ID) no esta definida
-        else if (simb.t != T_ENTERO){ yyerror("Error no se puede incrementar una variable no entera");}   // 2 - La variable no es entera y no se puede incrementar
-        else{ $$.tipo = simb.t; }
+        if (sim.t == T_ERROR){ yyerror("Error al declarar la variable."); }                                  // 1 - La variable (ID) no esta definida
+        else if (sim.t != T_ENTERO){ yyerror("Error no se puede incrementar una variable no entera");}   // 2 - La variable no es entera y no se puede incrementar
+        else{ $$.tipo = sim.t; }
         $$.pos = creaVarTemp();
-        emite(EASIG, crArgPos(simb.n,simb.d), crArgNul(), crArgPos(niv,$$.pos)); 
-        emite($2, crArgPos(simb.n,simb.d), crArgEnt(1), crArgPos(simb.n,simb.d));
+        emite(EASIG, crArgPos(sim.n,sim.d), crArgNul(), crArgPos(niv,$$.pos)); 
+        emite($2, crArgPos(sim.n,sim.d), crArgEnt(1), crArgPos(sim.n,sim.d));
     }
     | ID_ ACLAU_ expresion CCLAU_  // a[1] --> array
-    {   SIMB simb = obtTdS($1);
+    {   SIMB sim = obtTdS($1);
         $$.tipo = T_ERROR;
-        if (simb.t == T_ERROR){  yyerror("Error al declarar la variable.");}                                  // 1 - La variable (ID) no esta definida
-        else if (simb.t != T_ARRAY) {yyerror("La variable no es un array no puede ser accedida");}        // 2 - La variable no es un array y no se puede acceder a sus indices
+        if (sim.t == T_ERROR){  yyerror("Error al declarar la variable.");}                                  // 1 - La variable (ID) no esta definida
+        else if (sim.t != T_ARRAY) {yyerror("La variable no es un array no puede ser accedida");}        // 2 - La variable no es un array y no se puede acceder a sus indices
         else if($3.tipo != T_ENTERO){yyerror("Error , indice no entero");}                                // 3 - El indice de acceso al array no es un entero
         else{
-            DIM dim = obtTdA(simb.ref);
+            DIM dim = obtTdA(sim.ref);
             $$.tipo = dim.telem;
         }
         $$.pos = creaVarTemp();
-        emite(EAV, crArgPos(simb.n,simb.d), crArgPos(niv,$3.pos), crArgPos(niv,$$.pos)); 
+        emite(EAV, crArgPos(sim.n,sim.d), crArgPos(niv,$3.pos), crArgPos(niv,$$.pos)); 
     } 
     
     | ID_ APAR_               // f (params) id 
@@ -455,25 +455,25 @@ expresionSufija:
     }
     parametrosActuales CPAR_
     {
-        SIMB simb = obtTdS($1);
+        SIMB sim = obtTdS($1);
         $$.tipo = T_ERROR;
-        if (simb.t == T_ERROR){ yyerror("Error al declarar la variable."); }                                  // 1 - La variable (ID) no esta definida
-        INF inf = obtTdD(simb.ref);
+        if (sim.t == T_ERROR){ yyerror("Error al declarar la variable."); }                                  // 1 - La variable (ID) no esta definida
+        INF inf = obtTdD(sim.ref);
         if (inf.tipo == T_ERROR){ yyerror("Funcion no definida"); }                                   // 2 - La variable (ID) no es una funcion 
         else {$$.tipo = inf.tipo;}
         //emite(EPUSH, crArgNul(), crArgNul(), crArgPos(niv, si+2)); //Cuidado
-        emite(CALL, crArgNul(), crArgNul(), crArgEtq(simb.d)); //Cuidado
+        emite(CALL, crArgNul(), crArgNul(), crArgEtq(sim.d)); //Cuidado
         emite(DECTOP, crArgNul(), crArgNul(), crArgEnt(inf.tsp)); //cuidado
         $<texp>$.pos = creaVarTemp();
         emite(EPOP, crArgNul(), crArgNul(), crArgPos(niv, $<texp>$.pos));
     }
     | ID_
-    {   SIMB simb = obtTdS($1);
+    {   SIMB sim = obtTdS($1);
         $$.tipo = T_ERROR;
-        if (simb.t == T_ERROR) {yyerror("Error al declarar la variable.");}                                // 1 - La variable (ID) no esta definida
-        else {$$.tipo = simb.t; }
+        if (sim.t == T_ERROR) {yyerror("Error al declarar la variable.");}                                // 1 - La variable (ID) no esta definida
+        else {$$.tipo = sim.t; }
         $$.pos = creaVarTemp();
-        emite(EASIG, crArgPos(niv,simb.d), crArgNul(), crArgPos(niv,$$.pos));   
+        emite(EASIG, crArgPos(niv,sim.d), crArgNul(), crArgPos(niv,$$.pos));   
     }
     | constante {            // 4
         $$.tipo = $1.tipo;
