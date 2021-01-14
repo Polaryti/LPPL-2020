@@ -21,7 +21,7 @@
 
 typedef struct simb /******************************** Estructura para la TdS */
 {
-  int   tipo;               /* Tipo del objeto                                  */
+  int   t;               /* Tipo del objeto                                  */
   int   n;               /* Nivel "global" o "local"                         */
   int   d;               /* Desplazamiento relativo en el segmento variables */
   int   ref;             /* Campo de referencia de usos multiples            */

@@ -44,9 +44,32 @@ ALLAVE_ CLLAVE_ ACLAU_ CCLAU_ APAR_ CPAR_ PCOMA_ COMA_
             //bloque
 %%
 
-programa: {niv = 0; dvar = 0; si = 0; cargaContexto(niv);}
-      listaDeclaraciones  { if($2 != -1) {     //$2 es listaDeclaraciones ya que {niv=0;...} ocupa el puesto $1   NOTA: $2 valdra -1 si hay una funcion main
-        yyerror("No se ha encontrado la instrucción main.");}
+programa: {
+niv = 0; dvar = 0; si = 0; cargaContexto(niv); 
+ /*************** Reserva de espacio para variables globales */
+       $<aux>$.ref1 = creaLans(si);
+       emite(INCTOP, crArgNul(), crArgNul(), crArgEnt(-1));
+       /*************** Salto al comienzo de la funcion "main" */
+       $<aux>$.ref2 = creaLans(si);
+       emite(GOTOS, crArgNul(), crArgNul(), crArgEtq(-1));
+}
+      listaDeclaraciones  { 
+      if($2 != -1) {     //$2 es listaDeclaraciones ya que {niv=0;...} ocupa el puesto $1   NOTA: $2 valdra -1 si hay una funcion main
+        yyerror("No se ha encontrado la funcion main.");
+        
+        }
+        /***** Completa espacio para las variables globales */
+       completaLans($<aux>1.ref1, crArgEnt(dvar));
+       /***** Completa salto al comienzo del "main" */
+       //TABLA DE SIMBOLOS --> acceder a la tabla
+       SIMB sim = obtTdS("main");
+       $<aux>$.ref3 = sim.d;
+       completaLans($<aux>1.ref2, crArgEtq($<aux>$.ref3));
+
+           // XX es la dirección de la primera instrucción del "main"
+           // que está en la TdS y que la podéis obtener de diversas
+           // formas dependiendo como controléis el "main"
+        
         //if(verTdS) mostrarTdS();
       };
 /*****************************************************************************/
@@ -69,7 +92,7 @@ declaracionVariable:
         } 
       }
     | tipoSimple ID_ ACLAU_ CTE_ CCLAU_ PCOMA_ {
-        if ($4 <= 0) { yyerror("El tamaño del array debe de ser mayor que cero.");}                // 1 - el numero de elementos de una array no puede ser un valor negativo
+        if ($4 <= 0) { yyerror("El array debe ser de tamaño mayor que cero.");}                // 1 - el numero de elementos de una array no puede ser un valor negativo
         else {    
               int ref; 
               ref = insTdA($1,$4);
@@ -89,9 +112,12 @@ tipoSimple:
 /*****************************************************************************/
 declaracionFuncion:               
       cabeceraFuncion {$<cent>$ = dvar; dvar = 0;} bloque 
-      {  if(verTdS) mostrarTdS();
-         descargaContexto(niv); niv=0; dvar=$<cent>2;}
-        { $$=$1; }             //continuamos propagando el valor del atributo de la cabecera de la funcion que sera -1 si la funcion es un main        
+      {  
+         if(verTdS) mostrarTdS();
+         descargaContexto(niv); niv=0; dvar=$<cent>2;
+         $$=$1;
+         }
+                    //continuamos propagando el valor del atributo de la cabecera de la funcion que sera -1 si la funcion es un main        
         ;
 /*****************************************************************************/
 cabeceraFuncion:
@@ -136,21 +162,23 @@ bloque:            // GENERACION DE CODIGO
         emite( PUSHFP, crArgNul(), crArgNul(), crArgNul() );
         emite( FPTOP, crArgNul(), crArgNul(), crArgNul() );
         $<cent>$ = creaLans(si);
-        emite( INCTOP, crArgNul(), crArgNul(), crArgEnt(-1) );                   // OJO
+        emite( INCTOP, crArgNul(), crArgNul(), crArgEnt(-1) );                   
       } 
       declaracionVariableLocal listaInstrucciones RETURN_ expresion PCOMA_ CLLAVE_ { 
         INF inf = obtTdD(-1);
         if(inf.tipo != T_ERROR){
           if(inf.tipo != $6.tipo){
-            yyerror("Tipos de las variables incorrecto.");        
+            yyerror("Se ha producido una incompatibilidad de tipos.");        
           }
         } 
         completaLans( $<cent>2, crArgEnt(dvar) );
         int dret = TALLA_SEGENLACES + TALLA_TIPO_SIMPLE + inf.tsp;
-        emite( EASIG, crArgPos(niv,$6.pos) , crArgNul(), crArgPos(niv, dret));
+        emite( EASIG, crArgPos(niv,$6.pos) , crArgNul(), crArgPos(niv, -dret));
         emite( TOPFP, crArgNul(), crArgNul(), crArgNul() );
         emite( FPPOP, crArgNul(), crArgNul(), crArgNul() );
-        emite( RET, crArgNul(), crArgNul(), crArgNul() );  
+        if (strcmp(inf.nom,"main")==0) { emite( FIN, crArgNul(), crArgNul(), crArgNul() ); }
+        else { emite( RET, crArgNul(), crArgNul(), crArgNul() ); }
+        //MAIN --> fin SINO --> return
       }
     ;  
 /*****************************************************************************/
@@ -176,9 +204,9 @@ instruccionAsignacion:
         {   SIMB sim = obtTdS($1);
             if($3.tipo != T_ERROR){                         
 
-                if (sim.t == T_ERROR) yyerror("No se ha encontrado la declaración del objeto.");
+                if (sim.t == T_ERROR) yyerror("No se ha declarado el objeto.");
                 else if (! ((sim.t == $3.tipo && sim.t == T_ENTERO) || (sim.t == $3.tipo && sim.t == T_LOGICO)))               //si el tipo de la expresion es diferente del tipo de la variable devolvemos error
-                    yyerror("Tipos de las variables incorrecto.");
+                    yyerror("Se ha producido una incompatibilidad de tipos.");
             }
             emite(EASIG, crArgPos(niv, $3.pos) , crArgNul(), crArgPos(sim.n, sim.d));
 
@@ -192,9 +220,9 @@ instruccionAsignacion:
             
             if($3.tipo != T_ERROR && $6.tipo != T_ERROR){                    
                 if (sim.t == T_ERROR) yyerror("Error al declarar la variable.");                                          // 1 - el array ID ha sido declarado 
-                else if (! (sim.t == T_ARRAY))  yyerror("Tipos de las variables incorrecto.");                                           // 2 - el objeto ID no es un array
+                else if (! (sim.t == T_ARRAY))  yyerror("Se ha producido una incompatibilidad de tipos.");                                           // 2 - el objeto ID no es un array
                 else if (! ($3.tipo == T_ENTERO))  yyerror("El numero de elemento del array no es un entero");    // 3 - el indice para acceder al array no es de tipo entero
-                else if (! ($6.tipo == dim.telem)) { yyerror("Tipos de las variables incorrecto."); }                                     // 4 - el tipo de los objetos del array no coincide con la expresi�n a asignar
+                else if (! ($6.tipo == dim.telem)) { yyerror("Se ha producido una incompatibilidad de tipos."); }                                     // 4 - el tipo de los objetos del array no coincide con la expresi�n a asignar
                 //else if (! ($3.valor < dim.nelem)) yyerror("Error en el indice que accede al array (fuera de rango)");  // 5 - el indice del array accede a una posicion incorrecta
             }
             }
@@ -207,7 +235,7 @@ instruccionEntradaSalida:
         {
             SIMB sim = obtTdS($3);
             
-            if (sim.t != T_ENTERO) yyerror("Tipos de las variables incorrecto.");
+            if (sim.t != T_ENTERO) yyerror("Se ha producido una incompatibilidad de tipos.");
             emite(EREAD,crArgNul(),crArgNul(),crArgPos( sim.n , sim.d ));  
         }
       
@@ -226,7 +254,7 @@ instruccionSeleccion:
       
       {
           if ($3.tipo != T_ERROR) {
-              if ($3.tipo != T_LOGICO){ yyerror("Tipos de las variables incorrecto.");}    // expresion debe de ser de tipo logico
+              if ($3.tipo != T_LOGICO){ yyerror("Se ha producido una incompatibilidad de tipos.");}    // expresion debe de ser de tipo logico
           }
           $<aux>$.valor = creaLans(si);  
           emite(EIGUAL,crArgPos( niv , $3.pos ),crArgEnt(0),crArgEtq(-1));  //if expresion false (=0) va a else
@@ -250,7 +278,7 @@ instruccionIteracion:
       
       {
           if ($6.tipo != T_ERROR) {
-              if ($3.tipo != T_LOGICO && $3.tipo != T_VACIO && $3.tipo != T_ENTERO){ yyerror("Tipos de las variables incorrecto.");
+              if ($3.tipo != T_LOGICO && $3.tipo != T_VACIO && $3.tipo != T_ENTERO){ yyerror("Se ha producido una incompatibilidad de tipos.");
               }
           }
           $<aux>$.ref1 = creaLans(si);                              // TRUE
@@ -293,7 +321,7 @@ expresionOpcional:
 
             if (sim.t != T_ERROR && $3.tipo != T_ERROR){
                 if (sim.t == $3.tipo) {$$.tipo = sim.t;}
-                else {yyerror("Tipos de las variables incorrecto.");
+                else {yyerror("Se ha producido una incompatibilidad de tipos.");
                 }
             }
 
@@ -309,7 +337,7 @@ expresion:
     | expresion operadorLogico expresionIgualdad    // a AND b |  a OR b
     {   $$.tipo = T_ERROR;
         if ($1.tipo != T_ERROR && $3.tipo != T_ERROR) {
-            if ($1.tipo != $3.tipo) { yyerror("Tipos de las variables incorrecto.");
+            if ($1.tipo != $3.tipo) { yyerror("Se ha producido una incompatibilidad de tipos.");
             }                           // 1 - Los operadores logicos se aplican sobre variables del mismo tipo
             else if ($1.tipo != T_LOGICO) {yyerror("Operacion logica invalida para no booleanos");} // 2 - Los operadores logicos se aplican sobre variables booleanas
             else {$$.tipo = T_LOGICO;}
@@ -330,7 +358,7 @@ expresionIgualdad:
     | expresionIgualdad operadorIgualdad expresionRelacional  // a == b | a != b
     {   $$.tipo = T_ERROR;
         if ($1.tipo != T_ERROR && $3.tipo != T_ERROR) {
-            if ($1.tipo != $3.tipo) {yyerror("Tipos de las variables incorrecto.");}                                // 1 - La operacion de igualdad opera con variables del mismo tipo
+            if ($1.tipo != $3.tipo) {yyerror("Se ha producido una incompatibilidad de tipos.");}                                // 1 - La operacion de igualdad opera con variables del mismo tipo
             else if ($3.tipo != T_LOGICO && $3.tipo != T_ENTERO) { yyerror("No se puede aplicar el operador de igualdad.");}  // 2 - La expresion de Igualdad se puede aplicar a enteros y a logicos aunque siempre se va a aplicar a valores logicos debido a la expresionRelacional
             else {$$.tipo = T_LOGICO;}
         }
@@ -346,7 +374,7 @@ expresionRelacional:    //EDU
     | expresionRelacional operadorRelacional expresionAditiva  // a > b | a < b | a <= b | a >= b     
     {  $$.tipo = T_ERROR;
         if ($1.tipo != T_ERROR && $3.tipo != T_ERROR) {
-            if ($1.tipo != $3.tipo) { yyerror("Tipos de las variables incorrecto.");
+            if ($1.tipo != $3.tipo) { yyerror("Se ha producido una incompatibilidad de tipos.");
             }                                                  
             else if ($1.tipo != T_ENTERO) { yyerror("Operacion relacional solo acepta argumentos enteros.");}   
             else {
@@ -365,7 +393,7 @@ expresionAditiva:
     | expresionAditiva operadorAditivo expresionMultiplicativa  // a + b | a - b 
     {   $$.tipo = T_ERROR;
         if ($1.tipo != T_ERROR && $3.tipo != T_ERROR) {
-            if ($1.tipo != $3.tipo) { yyerror("Tipos de las variables incorrecto.");}                // 1 - El operador aditivo necesita dos variables del mismo tipo
+            if ($1.tipo != $3.tipo) { yyerror("Se ha producido una incompatibilidad de tipos.");}                // 1 - El operador aditivo necesita dos variables del mismo tipo
             else if ($1.tipo != T_ENTERO) { yyerror("Operacion aditiva solo acepta argumentos enteros.");} // 2 - El operador aditivo solo opera con variables enteras
             else { $$.tipo = T_ENTERO; }
         }
@@ -380,7 +408,7 @@ expresionMultiplicativa:
     | expresionMultiplicativa operadorMultiplicativo expresionUnaria // a/b | a*b 
     {   $$.tipo = T_ERROR;
         if ($1.tipo != T_ERROR && $3.tipo != T_ERROR) {
-            if ($1.tipo != $3.tipo) { yyerror("Tipos de las variables incorrecto.");}                 // 1 - El operador de multiplicacion se debe aplicar a dos tipos iguales
+            if ($1.tipo != $3.tipo) { yyerror("Se ha producido una incompatibilidad de tipos.");}                 // 1 - El operador de multiplicacion se debe aplicar a dos tipos iguales
             else if ($1.tipo != T_ENTERO) { yyerror("Operacion multiplicativa solo acepta argumentos enteros.");}  // 2 - El operador multiplicativo es solo para variables enteras
              else {$$.tipo = T_ENTERO;}
         }
@@ -401,7 +429,7 @@ expresionUnaria:
                 if($1==ESUM || $1 == EDIF){yyerror("Operacion entera no vaida para un booleano.");}     //2 - no se puede sumar ni restar booleanos
                 else{ $$.tipo = T_LOGICO;}
             }
-            else{yyerror("Tipos de las variables incorrecto.");
+            else{yyerror("Se ha producido una incompatibilidad de tipos.");
             }                                                               //3 - $2 debe ser entero o logico
             $$.pos = creaVarTemp();
             if ($1 == ESIG) {
@@ -451,7 +479,7 @@ expresionSufija:
     
     | ID_ APAR_               // f (params) id 
     {   
-        emite(INCTOP, crArgNul(), crArgNul(), crArgEnt(TALLA_TIPO_SIMPLE)); //Cuidado
+        emite(INCTOP, crArgNul(), crArgNul(), crArgEnt(TALLA_TIPO_SIMPLE)); 
     }
     parametrosActuales CPAR_
     {
@@ -464,8 +492,8 @@ expresionSufija:
         //emite(EPUSH, crArgNul(), crArgNul(), crArgPos(niv, si+2)); //Cuidado
         emite(CALL, crArgNul(), crArgNul(), crArgEtq(sim.d)); //Cuidado
         emite(DECTOP, crArgNul(), crArgNul(), crArgEnt(inf.tsp)); //cuidado
-        $<texp>$.pos = creaVarTemp();
-        emite(EPOP, crArgNul(), crArgNul(), crArgPos(niv, $<texp>$.pos));
+        $$.pos = creaVarTemp();
+        emite(EPOP, crArgNul(), crArgNul(), crArgPos(niv, $$.pos));
     }
     | ID_
     {   SIMB sim = obtTdS($1);
