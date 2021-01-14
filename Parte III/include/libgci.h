@@ -1,9 +1,7 @@
 /*****************************************************************************/
-/**  Definiciones de constantes y estructuras usadas en la libreria, junto  **/
-/**  con los perfiles de las funciones de ayuda para la GCI.                **/
-/**                     Jose Miguel Benedi, 2019-2020 <jbenedi@dsic.upv.es> **/
+/**    Pere Marco Garcia | Antoni Mestre Gascón | Mario Campos Mocholí      **/
 /*****************************************************************************/
-/*****************************************************************************/
+
 #ifndef _LIBGCI_H
 #define _LIBGCI_H
 

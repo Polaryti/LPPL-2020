@@ -1,3 +1,7 @@
+/*****************************************************************************/
+/**    Pere Marco Garcia | Antoni Mestre Gascón | Mario Campos Mocholí      **/
+/*****************************************************************************/
+
 #ifndef _HEADER_H
 #define _HEADER_H
 #define TALLA_TIPO_SIMPLE 1
