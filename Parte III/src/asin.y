@@ -222,7 +222,7 @@ instruccionEntradaSalida:
         {
             SIMB sim = obtTdS($3);
             
-            if (sim.t != T_ENTERO) yyerror("Se ha producido una incompatibilidad de tipos.");
+            if (sim.t != T_ENTERO && sim.t != T_LOGICO) yyerror("Se ha producido una incompatibilidad de tipos.");
             emite(EREAD,crArgNul(),crArgNul(),crArgPos( sim.n , sim.d ));  
         }
       
