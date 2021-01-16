@@ -1,0 +1,23 @@
+Enunciado
+
+Modifica los fuentes de tu compilador para incorporar una nueva instruccion de iteracion, cuya sintaxis es:
+
+instruccionUsingTimes -> using id <expresion> times do <instruccion>
+
+Esta instruccion debe inicializar la variable entera "id" con el valor 1 y, mientras el valor de la variable "id" sea menor o igual que la expresión entera <expresion>, ejecutar el cuerpo del bucle <instruccion>. En cada iteración, después de ejecutar el cuerpo del bucle, se incrementará el valor de la variable entera "id" en una unidad.
+
+Ej.
+  using x 0+0 times do print(x) ;
+   --> No se ejecuta el cuerpo del bucle
+
+  using x 4+1 times do print(x) ;
+   --> Imprimirá 1 2 3 4 5
+
+
+Etapas:
+
+1. Modifica el Analizador Lexico y el Analizador Sintactico para reconocer esta nueva instruccion.
+
+2. Incorpora acciones semanticas de comprobaciones de tipos y comprueba su funcionamiento con el ejemplo "prue1.c".
+
+3. Incorpora acciones semanticas de generacion de codigo intermedio y comprueba su funcionamiento con el ejemplo "prue2.c".
